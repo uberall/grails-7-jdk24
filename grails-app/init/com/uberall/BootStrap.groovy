@@ -7,6 +7,7 @@ class BootStrap {
     ServletContext servletContext
 
     def init = {
+        // No-op
     }
 
     def destroy = {

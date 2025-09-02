@@ -18,6 +18,7 @@ plugins {
     id "war"
     id "idea"
     id "eclipse"
+    id "codenarc"
 }
 
 // Not Published to Gradle Plugin Portal
@@ -107,4 +108,24 @@ assets {
             'webjars/bootstrap-icons/*/font/bootstrap-icons.css',
             'webjars/bootstrap-icons/*/font/fonts/*',
     ]
+}
+
+codenarc {
+    // Use a CodeNarc version compatible with Groovy 3.x used by Grails 7
+    toolVersion = '3.5.0'
+    // Use the existing custom ruleset in the repo
+    configFile = file('src/main/groovy/uberall/UberallRules.groovy')
+}
+
+tasks.withType(org.gradle.api.plugins.quality.CodeNarc).configureEach { t ->
+    reports { r ->
+        r.html.required.set(true)
+        r.html.outputLocation.set(layout.buildDirectory.file("reports/codenarc/${t.name}.html"))
+        r.xml.required.set(false)
+        r.text.required.set(false)
+    }
+}
+
+tasks.named('check') {
+    dependsOn 'codenarcMain', 'codenarcTest'
 }

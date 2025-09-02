@@ -18,7 +18,17 @@
             <g:if test="${flash.message}">
                 <div class="message" role="status">${flash.message}</div>
             </g:if>
-            <f:table collection="${locationList}" />
+            <f:table collection="${locationList}">
+                <f:column property="name" title="Name"/>
+                <f:column property="address" title="Address"/>
+                <f:column property="valid" title="Valid"/>
+                <f:column title="Date Created">
+                    <g:formatDate date="${it.dateCreated?.toDate()}" format="yyyy-MM-dd HH:mm:ss"/>
+                </f:column>
+                <f:column title="Last Updated">
+                    <g:formatDate date="${it.lastUpdated}" format="yyyy-MM-dd HH:mm:ss"/>
+                </f:column>
+            </f:table>
 
             <div class="pagination">
                 <g:paginate total="${locationCount ?: 0}" />

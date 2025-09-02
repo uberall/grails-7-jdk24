@@ -19,7 +19,28 @@
             <g:if test="${flash.message}">
             <div class="message" role="status">${flash.message}</div>
             </g:if>
-            <f:display bean="location" />
+            <ol class="property-list location">
+                <li class="fieldcontain">
+                    <span class="property-label">Name</span>
+                    <div class="property-value">${location.name}</div>
+                </li>
+                <li class="fieldcontain">
+                    <span class="property-label">Address</span>
+                    <div class="property-value">${location.address}</div>
+                </li>
+                <li class="fieldcontain">
+                    <span class="property-label">Valid</span>
+                    <div class="property-value">${location.valid}</div>
+                </li>
+                <li class="fieldcontain">
+                    <span class="property-label">Date Created</span>
+                    <div class="property-value"><g:formatDate date="${location.dateCreated}" format="yyyy-MM-dd HH:mm:ss"/></div>
+                </li>
+                <li class="fieldcontain">
+                    <span class="property-label">Last Updated</span>
+                    <div class="property-value"><g:formatDate date="${location.lastUpdated?.toDate()}" format="yyyy-MM-dd HH:mm:ss"/></div>
+                </li>
+            </ol>
             <g:form resource="${this.location}" method="DELETE">
                 <fieldset class="buttons">
                     <g:link class="edit" action="edit" resource="${this.location}"><g:message code="default.button.edit.label" default="Edit" /></g:link>
