@@ -1,0 +1,56 @@
+name: CI
+
+on:
+  push:
+    branches: [ "**" ]
+  pull_request:
+    branches: [ "**" ]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 24
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '24'
+          cache: 'gradle'
+
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
+
+      - name: Gradle Clean
+        run: ./gradlew --no-daemon clean
+
+      - name: Set up JDK 21 for CodeNarc
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: 'gradle'
+
+      - name: CodeNarc (runs with JDK 21)
+        run: ./gradlew --no-daemon codenarcMain codenarcTest codenarcIntegrationTest
+
+      - name: Restore JDK 24 for build/tests
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '24'
+          cache: 'gradle'
+
+      - name: Test
+        run: ./gradlew --no-daemon test
+
+      - name: IntegrationTest
+        run: ./gradlew --no-daemon integrationTest --info
+
+      - name: Build
+        run: ./gradlew --no-daemon build -x codenarcMain -x codenarcTest -x codenarcIntegrationTest

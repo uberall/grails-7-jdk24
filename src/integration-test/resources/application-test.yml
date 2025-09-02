@@ -1,0 +1,11 @@
+dataSource:
+  url: jdbc:tc:mysql:8.0.33:///db
+  driverClassName: org.testcontainers.jdbc.ContainerDatabaseDriver
+  dbCreate: create-drop
+  properties:
+    connectionInitSql: "SET time_zone = '+01:00'"
+hibernate:
+  hbm2ddl:
+    auto: create-drop
+  jdbc:
+    time_zone: '+01:00'
