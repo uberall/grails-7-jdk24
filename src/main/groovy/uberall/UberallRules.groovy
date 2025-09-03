@@ -7,7 +7,7 @@ ruleset {
         Just delete the rules that you don't want to include.
         '''
 
-    // rulesets/basic.xml    
+    // rulesets/basic.xml
     AssertWithinFinallyBlock
     AssignmentInConditional
     BigDecimalInstantiation

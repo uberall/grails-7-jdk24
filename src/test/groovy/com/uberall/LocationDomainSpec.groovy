@@ -16,14 +16,14 @@ class LocationDomainSpec extends Specification implements DomainUnitTest<Locatio
         loc.errors.getFieldError('valid')
 
         when:
-        loc = new Location(name: 'x'*51, address: 'a', valid: true)
+    loc = new Location(name: 'x' * 51, address: 'a', valid: true)
 
         then:
         !loc.validate()
         loc.errors.getFieldError('name')
 
         when:
-        loc = new Location(name: 'Shop', address: 'a'*251, valid: false)
+    loc = new Location(name: 'Shop', address: 'a' * 251, valid: false)
 
         then:
         !loc.validate()

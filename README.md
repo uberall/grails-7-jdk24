@@ -7,26 +7,22 @@ This project is a Grails 7 (7.0.0-RC1) application targeting JDK 24. The goal is
 1. Start dependencies with Docker Compose (MySQL)
    - cd docker-compose
    - docker-compose up -d
-   - This brings up a MySQL instance at jdbc:mysql://localhost:3316/uberall with user `uberall` / password `123456`.
 
 2. Run database migrations (Liquibase)
    - Auto-run is disabled by default now.
-   - You can run migrations manually via the Grails Database Migration plugin task:
+   - You can run migrations manually via cli:
      - ./gradlew dbmUpdate
 
-Timezone / DB session note:
-- The datasource initializes each MySQL session with: SET time_zone = '+01:00'.
-- This prevents the database from using an undesired server/system timezone (e.g., UTC-3) for NOW() and automatic TIMESTAMP defaults.
-- Application code continues to store instants consistently (tests verify DB reads as UTC wall time while the app uses Europe/Berlin offsets).
-
-3. Run CodeNarc with Gradle:
+3. Switch to JDK17 & run CodeNarc with Gradle:
+   -  sdk use java 17.0.15-amzn
    - ./gradlew clean codenarcMain codenarcTest
-   - or ./gradlew check (runs CodeNarc as part of verification)
-
+   - results : ./build/reports/codenarc
+   
 This project uses the Gradle CodeNarc plugin with a custom ruleset at:
 - src/main/groovy/uberall/UberallRules.groovy
 
-4. Run the application
+4. Run the application (JDK 24)
+   - sdk use java 24.0.2-amzn
    - ./gradlew bootRun
    - App will start at http://localhost:8090
 

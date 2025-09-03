@@ -37,7 +37,7 @@ jobs:
           cache: 'gradle'
 
       - name: CodeNarc (runs with JDK 17)
-        run: ./gradlew --no-daemon codenarc || ./gradlew --no-daemon codenarcMain codenarcTest
+        run: ./gradlew --no-daemon codenarcMain codenarcTest
 
       - name: Restore JDK 24 for build/tests
         uses: actions/setup-java@v4

@@ -5,7 +5,6 @@ import grails.gorm.transactions.Rollback
 import org.hibernate.SessionFactory
 import spock.lang.Specification
 
-import java.sql.ResultSet
 import java.time.*
 
 /**
@@ -17,7 +16,6 @@ import java.time.*
 class TimezonePersistenceSpec extends Specification {
 
     SessionFactory sessionFactory
-
 
     void "application zone offset is UTC+1 and not UTC or UTC-4"() {
         given: "A new listing and current app default zone"
@@ -36,14 +34,12 @@ class TimezonePersistenceSpec extends Specification {
         assert offset != ZoneOffset.UTC
         assert offset != ZoneOffset.ofHours(-4)
         // Allow DST (+02:00) but still assert that during non-DST the offset would be +01:00 for Europe/Berlin
-        def berlin = ZoneId.of("Europe/Berlin")
-        def berlinOffset = reloaded.lastUpdated.atZoneSameInstant(berlin).getOffset()
+        def berlinOffset = reloaded.lastUpdated.atZoneSameInstant(ZoneId.of("Europe/Berlin")).getOffset()
         assert berlinOffset == ZoneOffset.ofHours(1) || berlinOffset == ZoneOffset.ofHours(2)
     }
 
     void "date/time are stored in DB in UTC while app uses system default zone"() {
         given: "Berlin zone reference"
-        ZoneId berlin = ZoneId.of("Europe/Berlin")
 
         and: "a listing saved with auto-populated lastUpdated (java.time) and dateCreated (joda) types"
         def loc = new Location(name: "TZ Place", address: "Berlin")
@@ -61,14 +57,14 @@ class TimezonePersistenceSpec extends Specification {
         session.doWork { conn ->
             // Check session time_zone and raw column value
             def tzStmt = conn.createStatement()
-            ResultSet tzRs = tzStmt.executeQuery("SELECT @@session.time_zone")
+            def tzRs = tzStmt.executeQuery("SELECT @@session.time_zone")
             tzRs.next()
             sessionTimeZone = tzRs.getString(1)
             tzRs.close(); tzStmt.close()
 
             def ps = conn.prepareStatement("SELECT last_updated FROM listing WHERE id = ?")
             ps.setLong(1, id)
-            ResultSet rs = ps.executeQuery()
+            def rs = ps.executeQuery()
             rs.next()
             rawDatetime = rs.getString(1) // textual representation of DATETIME
             rs.close(); ps.close()
@@ -79,7 +75,7 @@ class TimezonePersistenceSpec extends Specification {
         def expectedUtcLocal = reloaded.lastUpdated.atZoneSameInstant(java.time.ZoneOffset.UTC).toLocalDateTime().withSecond(0).withNano(0)
 
         and: "Raw DB value represents the UTC wall time of the instant (as currently stored)"
-        assert rawDatetime.startsWith(expectedUtcLocal.toString().replace('T',' '))
+        assert rawDatetime.startsWith(expectedUtcLocal.toString().replace('T', ' '))
 
         and: "The MySQL session time_zone should be available and set to +01:00 per datasource init"
         assert sessionTimeZone != null && sessionTimeZone.size() > 0
