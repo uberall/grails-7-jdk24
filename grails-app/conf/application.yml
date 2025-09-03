@@ -24,14 +24,13 @@ dataSource:
     testWhileIdle: true
     testOnReturn: true
     validationQuery: "SELECT 1"
-    connectionInitSql: "SET time_zone = '+01:00'"
   dialect: org.hibernate.dialect.MySQL8Dialect
 grails:
   gorm:
     default:
       mapping:
         user-types:
-          - type: org.jadira.usertype.dateandtime.joda.PersistentDateTime
+          - type: org.jadira.usertype.dateandtime.joda.CustomPersistentDateTime
             class: org.joda.time.DateTime
           - type: org.jadira.usertype.dateandtime.joda.PersistentLocalDate
             class: org.joda.time.LocalDate
