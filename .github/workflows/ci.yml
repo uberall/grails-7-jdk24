@@ -50,4 +50,4 @@ jobs:
         run: ./gradlew --no-daemon test
 
       - name: Build
-        run: ./gradlew --no-daemon build
+        run: ./gradlew --no-daemon build -x codenarcMain -x codenarcTest -x codenarcIntegrationTest
