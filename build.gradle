@@ -77,8 +77,21 @@ dependencies {
     implementation "joda-time:joda-time:2.12.7"
     implementation 'org.jadira.usertype:usertype.jodatime:2.0.1'
     implementation 'org.jadira.usertype:usertype.spi:2.0.1'
+    implementation 'com.vdurmont:emoji-java:5.1.1' // emoji detection library – supports up to Unicode 11.0 emojis. See changelog: https://github.com/vdurmont/emoji-java/blob/master/CHANGELOG.md
+
+    implementation 'org.apache.commons:commons-lang3:3.18.0' //TODO: check version
+    implementation 'org.apache.commons:commons-text:1.14.0' // for StringEscapeUtils (html unescape)
 
     implementation "org.graalvm.polyglot:polyglot:24.0.0" // Use the latest version compatible with your stack
+
+    //swagger
+    implementation "io.swagger.core.v3:swagger-core:$swaggerVersion"
+    implementation "io.swagger.core.v3:swagger-annotations:$swaggerVersion"
+    implementation "io.swagger.core.v3:swagger-models:$swaggerVersion"
+    implementation "io.swagger.core.v3:swagger-integration:$swaggerVersion"
+    implementation "io.swagger.core.v3:swagger-jaxrs2:$swaggerVersion"
+    implementation "io.swagger.core.v3:swagger-jaxrs2-servlet-initializer:$swaggerVersion"
+    implementation "io.swagger.parser.v3:swagger-parser:2.1.27"
 
     integrationTestImplementation testFixtures("org.apache.grails:grails-geb")
     testImplementation "org.apache.grails:grails-testing-support-datamapping"

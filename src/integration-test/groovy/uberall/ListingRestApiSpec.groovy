@@ -7,7 +7,7 @@ import grails.testing.web.controllers.ControllerUnitTest
 
 @Integration
 @Rollback
-class ListingRestApiSpec extends Specification implements ControllerUnitTest<ListingController> {
+class ListingRestApiSpec extends Specification implements ControllerUnitTest<ApiListingController> {
 
     Location testLocation
 

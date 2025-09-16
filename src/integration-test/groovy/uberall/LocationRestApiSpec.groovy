@@ -7,7 +7,7 @@ import grails.testing.web.controllers.ControllerUnitTest
 
 @Integration
 @Rollback 
-class LocationRestApiSpec extends Specification implements ControllerUnitTest<LocationController> {
+class LocationRestApiSpec extends Specification implements ControllerUnitTest<ApiLocationController> {
 
     def setup() {
         // Clean up any existing data
