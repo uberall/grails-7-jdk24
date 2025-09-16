@@ -10,6 +10,7 @@ class UrlMappings {
         }
         "/swagger/$action?/$id?"(controller: "swagger", action: "index")
 
+        // Existing API routes
         group("/api") {
             group("/locations") {
                 "/"(controller: 'apiLocation', action: 'search', method: 'GET')
@@ -20,7 +21,7 @@ class UrlMappings {
                 "/$id"(controller: 'apiLocation', action: 'update', method: 'PUT')
                 "/$id"(controller: 'apiLocation', action: 'delete', method: 'DELETE')
             }
-            
+
             group("/listings") {
                 "/"(controller: 'apiListing', action: 'index', method: 'GET')
                 "/"(controller: 'apiListing', action: "save", method: 'POST')
@@ -28,6 +29,12 @@ class UrlMappings {
                 "/$id"(controller: 'apiListing', action: 'update', method: 'PUT')
                 "/$id"(controller: 'apiListing', action: 'delete', method: 'DELETE')
             }
+        }
+
+        // V1 routes expected by unit tests
+        group("/api/v1") {
+            "/listings"(controller: 'listing', action: 'index')
+            "/locations"(controller: 'location', action: 'index')
         }
 
         "/"(view:"/index")

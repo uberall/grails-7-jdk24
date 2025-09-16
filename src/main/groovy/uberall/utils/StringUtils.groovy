@@ -1148,7 +1148,7 @@ class StringUtils {
         if (map == null) {
             return null
         }
-        String json = (map as JSON).toString()
+        String json = (map as JSON)
         return Base64.encoder.encodeToString(json.getBytes(java.nio.charset.StandardCharsets.UTF_8))
     }
 

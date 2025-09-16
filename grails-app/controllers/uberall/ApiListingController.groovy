@@ -38,7 +38,7 @@ class ApiListingController extends RestfulController<Listing> {
     @Override
     def save() {
         def instance = createResource()
-        
+
         if (request.JSON.location?.id) {
             instance.location = Location.get(request.JSON.location.id)
             if (!instance.location) {
@@ -46,13 +46,13 @@ class ApiListingController extends RestfulController<Listing> {
                 return
             }
         }
-        
+
         instance.validate()
         if (instance.hasErrors()) {
             respond instance.errors, status: 422
             return
         }
-        
+
         instance.save flush:true
         respond instance, [status: 201]
     }
@@ -77,9 +77,9 @@ class ApiListingController extends RestfulController<Listing> {
             render status: 404
             return
         }
-        
+
         def jsonData = request.JSON
-        
+
         if (jsonData.location?.id) {
             def location = Location.get(jsonData.location.id)
             if (!location) {
@@ -88,7 +88,7 @@ class ApiListingController extends RestfulController<Listing> {
             }
             instance.location = location
         }
-        
+
         bindData(instance, jsonData, [include: ['directory', 'status']])
         instance.validate()
         if (instance.hasErrors()) {
@@ -116,11 +116,11 @@ class ApiListingController extends RestfulController<Listing> {
     protected Listing createResource() {
         Listing instance = resource.newInstance()
         def jsonData = request.JSON
-        
+
         if (jsonData.location?.id) {
             instance.location = Location.get(jsonData.location.id)
         }
-        
+
         bindData(instance, jsonData, [include: ['directory', 'status']])
         instance
     }

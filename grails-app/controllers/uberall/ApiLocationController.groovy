@@ -80,7 +80,7 @@ class ApiLocationController extends RestfulController<Location> {
             render status: 404
             return
         }
-        
+
         instance.properties = getObjectToBind()
         instance.validate()
         if (instance.hasErrors()) {
