@@ -3,12 +3,12 @@ package uberall
 class UrlMappings {
 
     static mappings = {
-        "/$controller/$action?/$id?(.$format)?" {
-            constraints {
-                // apply constraints here
-            }
-        }
-        "/swagger/$action?/$id?"(controller: "swagger", action: "index")
+        "/"(view:"/index")
+        "500"(view:'/error')
+        "404"(view:'/notFound')
+
+        "/admin/listing/$action/$id?"(controller: "adminListing")
+        "/admin/location/$action/$id?"(controller: "adminLocation")
 
         // Existing API routes
         group("/api") {
@@ -21,7 +21,6 @@ class UrlMappings {
                 "/$id"(controller: 'apiLocation', action: 'update', method: 'PUT')
                 "/$id"(controller: 'apiLocation', action: 'delete', method: 'DELETE')
             }
-
             group("/listings") {
                 "/"(controller: 'apiListing', action: 'index', method: 'GET')
                 "/"(controller: 'apiListing', action: "save", method: 'POST')
@@ -30,15 +29,5 @@ class UrlMappings {
                 "/$id"(controller: 'apiListing', action: 'delete', method: 'DELETE')
             }
         }
-
-        // V1 routes expected by unit tests
-        group("/api/v1") {
-            "/listings"(controller: 'listing', action: 'index')
-            "/locations"(controller: 'location', action: 'index')
-        }
-
-        "/"(view:"/index")
-        "500"(view:'/error')
-        "404"(view:'/notFound')
     }
 }

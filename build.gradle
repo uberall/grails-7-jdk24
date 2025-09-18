@@ -102,8 +102,7 @@ dependencies {
     testImplementation "org.testcontainers:testcontainers"
 }
 
-// Target Java 21 (local JDK) instead of unreleased 24 to fix compilation
-compileJava.options.release = 21
+compileJava.options.release = 24
 
 tasks.withType(Test) {
     useJUnitPlatform()
@@ -125,9 +124,9 @@ assets {
 }
 
 codenarc {
-    // Use a CodeNarc version compatible with Groovy 3.x used by Grails 7
-    toolVersion = '3.5.0'
-    // Use the existing custom ruleset in the repo
+    // CodeNarc 3.6.0 doesn't support Java 24 yet (major version 68)
+    // Using latest available version
+    toolVersion = '3.6.0'
     configFile = file('src/main/groovy/uberall/UberallRules.groovy')
 }
 

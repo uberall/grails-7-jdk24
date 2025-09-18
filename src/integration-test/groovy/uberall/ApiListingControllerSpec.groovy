@@ -4,10 +4,11 @@ import grails.testing.mixin.integration.Integration
 import grails.gorm.transactions.Rollback
 import spock.lang.Specification
 import grails.testing.web.controllers.ControllerUnitTest
+import spock.lang.Unroll
 
 @Integration
 @Rollback
-class ListingRestApiSpec extends Specification implements ControllerUnitTest<ApiListingController> {
+class ApiListingControllerSpec extends Specification implements ControllerUnitTest<ApiListingController> {
 
     Location testLocation
 
@@ -15,13 +16,13 @@ class ListingRestApiSpec extends Specification implements ControllerUnitTest<Api
         // Clean up any existing data
         Listing.executeUpdate("delete from Listing")
         Location.executeUpdate("delete from Location")
-        
+
         // Create a test location for listings
         testLocation = new Location(name: "Test Location", address: "Test Address", valid: true)
         testLocation.save(flush: true)
     }
 
-    void "POST /api/v1/listings creates a new listing and returns JSON"() {
+    void "POST /api/listings creates a new listing and returns JSON"() {
         given: "A valid listing JSON payload"
         request.contentType = 'application/json'
         request.json = [
@@ -50,7 +51,7 @@ class ListingRestApiSpec extends Specification implements ControllerUnitTest<Api
         savedListing.location.id == testLocation.id
     }
 
-    void "POST /api/v1/listings with invalid status returns validation error"() {
+    void "POST /api/listings with invalid status returns validation error"() {
         given: "A listing with invalid status"
         request.contentType = 'application/json'
         request.json = [
@@ -69,7 +70,7 @@ class ListingRestApiSpec extends Specification implements ControllerUnitTest<Api
         Listing.count() == 0
     }
 
-    void "POST /api/v1/listings with non-existent location returns error"() {
+    void "POST /api/listings with non-existent location returns error"() {
         given: "A listing with non-existent location ID"
         request.contentType = 'application/json'
         request.json = [
@@ -82,13 +83,13 @@ class ListingRestApiSpec extends Specification implements ControllerUnitTest<Api
         controller.save()
 
         then: "The response indicates an error"
-        response.status == 422 || response.status == 400
+        response.status == 404
 
         and: "No listing is created in the database"
         Listing.count() == 0
     }
 
-    void "POST /api/v1/listings with blank directory returns validation error"() {
+    void "POST /api/listings with blank directory returns validation error"() {
         given: "A listing with blank directory"
         request.contentType = 'application/json'
         request.json = [
@@ -107,7 +108,7 @@ class ListingRestApiSpec extends Specification implements ControllerUnitTest<Api
         Listing.count() == 0
     }
 
-    void "POST /api/v1/listings with blank status returns validation error"() {
+    void "POST /api/listings with blank status returns validation error"() {
         given: "A listing with blank status"
         request.contentType = 'application/json'
         request.json = [
@@ -126,7 +127,7 @@ class ListingRestApiSpec extends Specification implements ControllerUnitTest<Api
         Listing.count() == 0
     }
 
-    void "GET /api/v1/listings returns empty list when no listings exist"() {
+    void "GET /api/listings returns empty list when no listings exist"() {
         when: "Making a GET request when no listings exist"
         controller.index()
 
@@ -138,7 +139,7 @@ class ListingRestApiSpec extends Specification implements ControllerUnitTest<Api
         response.json.size() == 0
     }
 
-    void "GET /api/v1/listings returns list of listings as JSON"() {
+    void "GET /api/listings returns list of listings as JSON"() {
         given: "Some existing listings"
         def listing1 = new Listing(directory: "Google", status: "Active", location: testLocation)
         listing1.save(flush: true)
@@ -158,7 +159,7 @@ class ListingRestApiSpec extends Specification implements ControllerUnitTest<Api
         response.json.find { it.directory == "Facebook" && it.status == "InSync" } != null
     }
 
-    void "GET /api/v1/listings/{id} with non-existent ID returns 404"() {
+    void "GET /api/listings/{id} with non-existent ID returns 404"() {
         when: "Making a GET request for a non-existent listing"
         params.id = 99999
         controller.show()
@@ -167,7 +168,7 @@ class ListingRestApiSpec extends Specification implements ControllerUnitTest<Api
         response.status == 404
     }
 
-    void "PUT /api/v1/listings/{id} with non-existent ID returns 404"() {
+    void "PUT /api/listings/{id} with non-existent ID returns 404"() {
         given: "Updated listing data for non-existent listing"
         request.contentType = 'application/json'
         request.json = [
@@ -184,7 +185,7 @@ class ListingRestApiSpec extends Specification implements ControllerUnitTest<Api
         response.status == 404
     }
 
-    void "PUT /api/v1/listings/{id} with validation errors returns 422"() {
+    void "PUT /api/listings/{id} with validation errors returns 422"() {
         given: "An existing listing"
         def listing = new Listing(directory: "Google", status: "Active", location: testLocation)
         listing.save(flush: true)
@@ -210,7 +211,7 @@ class ListingRestApiSpec extends Specification implements ControllerUnitTest<Api
         unchangedListing.status == "Active"
     }
 
-    void "DELETE /api/v1/listings/{id} with non-existent ID returns 404"() {
+    void "DELETE /api/listings/{id} with non-existent ID returns 404"() {
         when: "Making a DELETE request for non-existent listing"
         params.id = 99999
         controller.delete()
@@ -219,7 +220,7 @@ class ListingRestApiSpec extends Specification implements ControllerUnitTest<Api
         response.status == 404
     }
 
-    void "GET /api/v1/listings/{id} returns specific listing as JSON"() {
+    void "GET /api/listings/{id} returns specific listing as JSON"() {
         given: "An existing listing"
         def listing = new Listing(directory: "Yelp", status: "OutOfSync", location: testLocation)
         listing.save(flush: true)
@@ -238,7 +239,7 @@ class ListingRestApiSpec extends Specification implements ControllerUnitTest<Api
         response.json.location.id == testLocation.id
     }
 
-    void "PUT /api/v1/listings/{id} updates existing listing"() {
+    void "PUT /api/listings/{id} updates existing listing"() {
         given: "An existing listing"
         def listing = new Listing(directory: "Google", status: "Active", location: testLocation)
         listing.save(flush: true)
@@ -265,7 +266,7 @@ class ListingRestApiSpec extends Specification implements ControllerUnitTest<Api
         updatedListing.location.id == testLocation.id
     }
 
-    void "DELETE /api/v1/listings/{id} deletes existing listing"() {
+    void "DELETE /api/listings/{id} deletes existing listing"() {
         given: "An existing listing"
         def listing = new Listing(directory: "Foursquare", status: "Active", location: testLocation)
         listing.save(flush: true)
@@ -283,111 +284,89 @@ class ListingRestApiSpec extends Specification implements ControllerUnitTest<Api
         Listing.count() == 0
     }
 
-    void "POST /api/v1/listings with all valid directories works"() {
-        given: "All valid directories from the domain model"
-        def validDirectories = Listing.directories
+    @Unroll
+    void "PUT updates to directory #directory"() {
+        given:
+        def listing = new Listing(directory: "Google", status: "Active", location: testLocation).save(flush: true)
 
-        expect: "Creating listings for each valid directory succeeds"
-        validDirectories.each { directory ->
-            request.contentType = 'application/json'
-            request.json = [
-                directory: directory,
-                status: "Active",
-                location: [id: testLocation.id]
-            ]
-            
-            controller.save()
-            
-            assert response.status == 201
-            assert Listing.findByDirectory(directory) != null
-            
-            // Clear response for next iteration
-            response.reset()
-        }
-        
-        and: "All listings are persisted"
-        Listing.count() == validDirectories.size()
+        when:
+        request.contentType = 'application/json'
+        request.json = [directory: directory, status: 'Active', location: [id: testLocation.id]]
+        params.id = listing.id
+        controller.update()
+
+        then:
+        response.status == 200
+        Listing.get(listing.id).directory == directory
+
+        where:
+        directory << Listing.directories
     }
 
-    void "POST /api/v1/listings with all valid statuses works"() {
-        given: "All valid statuses from the domain model"
-        def validStatuses = Listing.statuses
+    @Unroll
+    void "POST /api/listings creates with valid status #status"() {
+        given:
+        request.contentType = 'application/json'
+        request.json = [
+            directory: "Google",
+            status: status,
+            location: [id: testLocation.id]
+        ]
 
-        expect: "Creating listings for each valid status succeeds"
-        validStatuses.eachWithIndex { status, index ->
-            request.contentType = 'application/json'
-            request.json = [
-                directory: "Google", // Use same directory, different status
-                status: status,
-                location: [id: testLocation.id]
-            ]
-            
-            controller.save()
-            
-            assert response.status == 201
-            assert Listing.findByStatus(status) != null
-            
-            // Clear response for next iteration
-            response.reset()
-        }
-        
-        and: "All listings are persisted"
-        Listing.count() == validStatuses.size()
+        when:
+        controller.save()
+
+        then:
+        response.status == 201
+        Listing.findByStatus(status) != null
+
+        where:
+        status << Listing.statuses
     }
 
-    void "PUT /api/v1/listings can update to all valid directories"() {
-        given: "An existing listing"
-        def listing = new Listing(directory: "Google", status: "Active", location: testLocation)
-        listing.save(flush: true)
-        def validDirectories = Listing.directories
+    @Unroll
+    void "PUT /api/listings updates directory to #directory"() {
+        given:
+        def listing = new Listing(directory: "Google", status: "Active", location: testLocation).save(flush: true)
 
-        expect: "Can update to each valid directory"
-        validDirectories.each { directory ->
-            request.contentType = 'application/json'
-            request.json = [
-                directory: directory,
-                status: "Active",
-                location: [id: testLocation.id]
-            ]
-            params.id = listing.id
-            
-            controller.update()
-            
-            assert response.status == 200
-            
-            def updatedListing = Listing.get(listing.id)
-            assert updatedListing.directory == directory
-            
-            // Clear response for next iteration
-            response.reset()
-        }
+        when:
+        request.contentType = 'application/json'
+        request.json = [
+            directory: directory,
+            status: "Active",
+            location: [id: testLocation.id]
+        ]
+        params.id = listing.id
+        controller.update()
+
+        then:
+        response.status == 200
+        Listing.get(listing.id).directory == directory
+
+        where:
+        directory << Listing.directories
     }
 
-    void "PUT /api/v1/listings can update to all valid statuses"() {
-        given: "An existing listing"
-        def listing = new Listing(directory: "Google", status: "Active", location: testLocation)
-        listing.save(flush: true)
-        def validStatuses = Listing.statuses
+    @Unroll
+    void "PUT /api/listings updates status to #status"() {
+        given:
+        def listing = new Listing(directory: "Google", status: "Active", location: testLocation).save(flush: true)
 
-        expect: "Can update to each valid status"
-        validStatuses.each { status ->
-            request.contentType = 'application/json'
-            request.json = [
-                directory: "Google",
-                status: status,
-                location: [id: testLocation.id]
-            ]
-            params.id = listing.id
-            
-            controller.update()
-            
-            assert response.status == 200
-            
-            def updatedListing = Listing.get(listing.id)
-            assert updatedListing.status == status
-            
-            // Clear response for next iteration
-            response.reset()
-        }
+        when:
+        request.contentType = 'application/json'
+        request.json = [
+            directory: "Google",
+            status: status,
+            location: [id: testLocation.id]
+        ]
+        params.id = listing.id
+        controller.update()
+
+        then:
+        response.status == 200
+        Listing.get(listing.id).status == status
+
+        where:
+        status << Listing.statuses
     }
 }

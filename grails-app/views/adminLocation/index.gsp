@@ -18,10 +18,18 @@
             <g:if test="${flash.message}">
                 <div class="message" role="status">${flash.message}</div>
             </g:if>
-            <f:table collection="${locationList}">
+            <f:table collection="${locationList}" controller="adminLocation">
+                <f:column property="id" title="ID"/>
                 <f:column property="name" title="Name"/>
                 <f:column property="address" title="Address"/>
                 <f:column property="valid" title="Valid"/>
+                <f:column title="Listings">
+                    <g:if test="${it.listings}">
+                        <g:each in="${it.listings}" var="listing" status="i">
+                            <g:link controller="adminListing" action="show" id="${listing.id}">${listing.directory}</g:link><g:if test="${i < it.listings.size() - 1}">, </g:if>
+                        </g:each>
+                    </g:if>
+                </f:column>
                 <f:column title="Date Created">
                     <g:formatDate date="${it.dateCreated?.toDate()}" format="yyyy-MM-dd HH:mm:ss"/>
                 </f:column>

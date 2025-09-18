@@ -41,9 +41,9 @@
                     <div class="property-value"><g:formatDate date="${location.lastUpdated?.toDate()}" format="yyyy-MM-dd HH:mm:ss"/></div>
                 </li>
             </ol>
-            <g:form resource="${this.location}" method="DELETE">
+            <g:form controller="adminLocation" action="delete" id="${this.location.id}" method="DELETE">
                 <fieldset class="buttons">
-                    <g:link class="edit" action="edit" resource="${this.location}"><g:message code="default.button.edit.label" default="Edit" /></g:link>
+                    <g:link class="edit" action="edit" controller="adminLocation" id="${this.location.id}"><g:message code="default.button.edit.label" default="Edit" /></g:link>
                     <input class="delete" type="submit" value="${message(code: 'default.button.delete.label', default: 'Delete')}" onclick="return confirm('${message(code: 'default.button.delete.confirm.message', default: 'Are you sure?')}');" />
                 </fieldset>
             </g:form>

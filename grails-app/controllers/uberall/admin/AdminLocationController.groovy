@@ -1,10 +1,12 @@
-package uberall
+package uberall.admin
 
 import grails.gorm.transactions.Transactional
+import uberall.Location
+import uberall.LocationService
 
 import static org.springframework.http.HttpStatus.*
 
-class LocationController {
+class AdminLocationController {
 
     LocationService locationService
 
@@ -57,7 +59,8 @@ class LocationController {
         request.withFormat {
             form multipartForm {
                 flash.message = message(code: 'default.created.message', args: [message(code: 'location.label', default: 'Location'), location.id])
-                redirect location
+                // Redirect to non-admin show path per new expectation
+                redirect uri: "/admin/location/show/${location.id}"
             }
             '*' { respond location, [status: CREATED] }
         }
@@ -82,7 +85,7 @@ class LocationController {
         request.withFormat {
             form multipartForm {
                 flash.message = message(code: 'default.updated.message', args: [message(code: 'location.label', default: 'Location'), location.id])
-                redirect location
+                redirect uri: '/admin/location/show/' + location.id
             }
             '*' { respond location, [status: OK] }
         }
@@ -101,7 +104,8 @@ class LocationController {
         request.withFormat {
             form multipartForm {
                 flash.message = message(code: 'default.deleted.message', args: [message(code: 'location.label', default: 'Location'), location.id])
-                redirect action:"index", method:"GET"
+                // Redirect to adminLocation index per new expectation
+                redirect uri: '/admin/location/index'
             }
             '*' { render status: NO_CONTENT }
         }
@@ -111,7 +115,7 @@ class LocationController {
         request.withFormat {
             form multipartForm {
                 flash.message = message(code: 'default.not.found.message', args: [message(code: 'location.label', default: 'Location'), params.id])
-                redirect action: "index", method: "GET"
+                redirect uri: '/admin/location/index'
             }
             '*' { render status: NOT_FOUND }
         }

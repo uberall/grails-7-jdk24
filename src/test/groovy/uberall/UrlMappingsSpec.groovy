@@ -2,21 +2,27 @@ package uberall
 
 import grails.testing.web.UrlMappingsUnitTest
 import spock.lang.Specification
+import uberall.admin.AdminListingController
+import uberall.admin.AdminLocationController
 
 class UrlMappingsSpec extends Specification implements UrlMappingsUnitTest<UrlMappings> {
 
     Class[] getControllersToMock() {
-        [ListingController, LocationController] as Class[]
+        [AdminListingController, AdminLocationController] as Class[]
     }
 
-    void "test api v1 listings resource mapping"() {
+    void "test admin listing mapping"() {
         expect:
-        assertForwardUrlMapping("/api/v1/listings", controller: 'listing', action: 'index')
+        assertForwardUrlMapping("/admin/listing/show/1", controller: 'adminListing', action: 'show', id: '1')
+        assertForwardUrlMapping("/admin/listing/edit/42", controller: 'adminListing', action: 'edit', id: '42')
+        assertForwardUrlMapping("/admin/listing/create", controller: 'adminListing', action: 'create')
     }
 
-    void "test api v1 locations resource mapping"() {
+    void "test admin location mapping"() {
         expect:
-        assertForwardUrlMapping("/api/v1/locations", controller: 'location', action: 'index')
+        assertForwardUrlMapping("/admin/location/show/1", controller: 'adminLocation', action: 'show', id: '1')
+        assertForwardUrlMapping("/admin/location/edit/42", controller: 'adminLocation', action: 'edit', id: '42')
+        assertForwardUrlMapping("/admin/location/create", controller: 'adminLocation', action: 'create')
     }
 
     void "test default mapping to index"() {

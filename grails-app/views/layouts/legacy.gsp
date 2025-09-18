@@ -34,8 +34,8 @@
                 </g:link>
                 <nav class="nav-links" role="navigation" aria-label="Main Navigation">
                     <g:link uri="/" aria-current="${request.forwardURI == '/' ? 'page' : ''}">Home</g:link>
-                    <g:link controller="location" action="index" aria-current="${controllerName=='location' ? 'page' : ''}">Locations</g:link>
-                    <g:link controller="listing" action="index" aria-current="${controllerName=='listing' ? 'page' : ''}">Listings</g:link>
+                    <g:link controller="adminLocation" action="index" aria-current="${controllerName=='location' ? 'page' : ''}">Locations</g:link>
+                    <g:link controller="adminListing" action="index" aria-current="${controllerName=='listing' ? 'page' : ''}">Listings</g:link>
                 </nav>
             </div>
         </header>

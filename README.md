@@ -13,9 +13,9 @@ This project is a Grails 7 (7.0.0-RC1) application targeting JDK 24. The goal is
    - You can run migrations manually via cli:
      - ./gradlew dbmUpdate
 
-3. Switch to JDK17 & run CodeNarc with Gradle:
-   -  sdk use java 17.0.15-amzn
-   - ./gradlew clean codenarcMain codenarcTest
+3. Switch to JDK21 & run CodeNarc with Gradle:
+   -  sdk use java 21.0.8-amzn
+   - ./gradlew clean codenarcMain codenarcTest codenarcIntegrationTest
    - results : ./build/reports/codenarc
    
 This project uses the Gradle CodeNarc plugin with a custom ruleset at:
@@ -32,7 +32,7 @@ API base path: /api/v1
 
 - Create a Location
   - Request:
-    curl -s -X POST "http://localhost:8090/api/v1/locations" \
+    curl -s -X POST "http://localhost:8090/api/locations" \
       -H "Content-Type: application/json" \
       -d '{
             "name": "Central Park",
@@ -51,7 +51,7 @@ API base path: /api/v1
   - Allowed directories: Google, Facebook, Yelp, Apple, Foursquare
   - Allowed statuses: Active, InSync, OutOfSync, Deleted
   - Request:
-    curl -s -X POST "http://localhost:8090/api/v1/listings" \
+    curl -s -X POST "http://localhost:8090/api/listings" \
       -H "Content-Type: application/json" \
       -d '{
             "directory": "Google",

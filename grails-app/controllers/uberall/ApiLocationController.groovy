@@ -12,14 +12,13 @@ class ApiLocationController extends RestfulController<Location> {
         super(Location)
     }
 
-    def beforeInterceptor = {
-        JSON.use('v1')
-        return true
-    }
-
     @Override
     protected Location queryForResource(Serializable id) {
-        Location.where { id == id }.get()
+        if (id == null) {
+            return null
+        }
+        // Use direct lookup by primary key to avoid variable shadowing issues
+        Location.get(id as Long)
     }
 
     @Override
@@ -27,12 +26,12 @@ class ApiLocationController extends RestfulController<Location> {
         Location.list(params)
     }
 
-    // GET /api/v1/locations/
-    def search() {
+    // GET /api/locations/
+    def index() {
         respond listAllResources(params)
     }
 
-    // POST /api/v1/locations/
+    // POST /api/locations/
     @Transactional
     def create() {
         def instance = createResource()
@@ -45,7 +44,7 @@ class ApiLocationController extends RestfulController<Location> {
         respond instance, [status: 201]
     }
 
-    // DELETE /api/v1/locations/
+    // DELETE /api/locations/
     @Transactional
     def deleteLocations() {
         // Bulk delete operation
@@ -53,14 +52,14 @@ class ApiLocationController extends RestfulController<Location> {
         render status: 200, text: "Deleted ${deletedCount} locations"
     }
 
-    // PUT /api/v1/locations/
+    // PUT /api/locations/
     @Transactional
     def editLocations() {
         // Bulk edit operation - implementation depends on requirements
         respond([message: 'Bulk edit not implemented'], status: 501)
     }
 
-    // GET /api/v1/locations/{id}
+    // GET /api/locations/{id}
     @Override
     def show() {
         def instance = queryForResource(params.id)
@@ -71,7 +70,7 @@ class ApiLocationController extends RestfulController<Location> {
         respond instance
     }
 
-    // PUT /api/v1/locations/{id}
+    // PUT /api/locations/{id}
     @Transactional
     @Override
     def update() {
@@ -81,9 +80,12 @@ class ApiLocationController extends RestfulController<Location> {
             return
         }
 
-        instance.properties = getObjectToBind()
+        def jsonData = request.JSON
+
+        bindData(instance, jsonData, [include: allowedFields])
         instance.validate()
         if (instance.hasErrors()) {
+            instance.discard()
             respond instance.errors, status: 422
             return
         }
@@ -91,7 +93,7 @@ class ApiLocationController extends RestfulController<Location> {
         respond instance, status: 200
     }
 
-    // DELETE /api/v1/locations/{id}
+    // DELETE /api/locations/{id}
     @Transactional
     @Override
     def delete() {
@@ -111,7 +113,9 @@ class ApiLocationController extends RestfulController<Location> {
     @Override
     protected Location createResource() {
         Location instance = resource.newInstance()
-        bindData instance, getObjectToBind()
+        def jsonData = request.JSON
+
+        bindData(instance, jsonData, [include: allowedFields])
         instance
     }
 }

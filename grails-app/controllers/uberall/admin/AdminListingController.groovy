@@ -1,10 +1,12 @@
-package uberall
+package uberall.admin
 
 import grails.gorm.transactions.Transactional
+import uberall.Listing
+import uberall.ListingDataService
 
 import static org.springframework.http.HttpStatus.*
 
-class ListingController {
+class AdminListingController {
 
     ListingDataService listingDataService
 
@@ -52,7 +54,7 @@ class ListingController {
         request.withFormat {
             form multipartForm {
                 flash.message = message(code: 'default.created.message', args: [message(code: 'listing.label', default: 'Listing'), listing.id])
-                redirect listing
+                redirect uri: '/admin/listing/show/' + listing.id
             }
             '*' { respond listing, [status: CREATED] }
         }
@@ -83,7 +85,7 @@ class ListingController {
         request.withFormat {
             form multipartForm {
                 flash.message = message(code: 'default.updated.message', args: [message(code: 'listing.label', default: 'Listing'), listing.id])
-                redirect listing
+                redirect uri: '/admin/listing/show/' + listing.id
             }
             '*' { respond listing, [status: OK] }
         }
@@ -102,7 +104,8 @@ class ListingController {
         request.withFormat {
             form multipartForm {
                 flash.message = message(code: 'default.deleted.message', args: [message(code: 'listing.label', default: 'Listing'), listing.id])
-                redirect action:"index", method:"GET"
+                // Use explicit mapped URI so redirectedUrl matches '/admin/listing/index'
+                redirect uri: '/admin/listing/index'
             }
             '*' { render status: NO_CONTENT }
         }
@@ -112,7 +115,8 @@ class ListingController {
         request.withFormat {
             form multipartForm {
                 flash.message = message(code: 'default.not.found.message', args: [message(code: 'listing.label', default: 'Listing'), params.id])
-                redirect action: "index", method: "GET"
+                // Use explicit mapped URI to ensure consistent redirect path
+                redirect uri: '/admin/listing/index'
             }
             '*' { render status: NOT_FOUND }
         }

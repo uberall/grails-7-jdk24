@@ -19,7 +19,7 @@
             <g:if test="${flash.message}">
             <div class="message" role="status">${flash.message}</div>
             </g:if>
-            ol class="property-list listing">
+            <ol class="property-list adminListing">
             <li class="fieldcontain">
                 <span class="property-label">Directory</span>
                 <div class="property-value">${listing.directory}</div>
@@ -41,12 +41,13 @@
                 <div class="property-value"><g:formatDate date="${listing.lastUpdated}" format="yyyy-MM-dd HH:mm:ss"/></div>
             </li>
         </ol>
-            <g:form resource="${this.listing}" method="DELETE">
+            <g:form controller="adminListing" action="delete" id="${this.listing.id}" method="DELETE">
                 <fieldset class="buttons">
-                    <g:link class="edit" action="edit" resource="${this.listing}"><g:message code="default.button.edit.label" default="Edit" /></g:link>
+                    <g:link class="edit" action="edit" controller="adminListing" id="${this.listing.id}"><g:message code="default.button.edit.label" default="Edit" /></g:link>
                     <input class="delete" type="submit" value="${message(code: 'default.button.delete.label', default: 'Delete')}" onclick="return confirm('${message(code: 'default.button.delete.confirm.message', default: 'Are you sure?')}');" />
                 </fieldset>
             </g:form>
         </div>
     </body>
 </html>
+

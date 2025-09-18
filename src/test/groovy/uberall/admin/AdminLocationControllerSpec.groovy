@@ -1,12 +1,14 @@
-package uberall
+package uberall.admin
 
 import spock.lang.Specification
 import grails.testing.web.controllers.ControllerUnitTest
 import grails.testing.gorm.DataTest
+import uberall.Location
+import uberall.LocationService
 
 import static org.springframework.http.HttpStatus.*
 
-class LocationControllerSpec extends Specification implements ControllerUnitTest<LocationController>, DataTest {
+class AdminLocationControllerSpec extends Specification implements ControllerUnitTest<AdminLocationController>, DataTest {
 
     @Override
     Class[] getDomainClassesToMock() {
@@ -63,7 +65,7 @@ class LocationControllerSpec extends Specification implements ControllerUnitTest
         controller.save(location)
 
         then: "A redirect is issued to the show action"
-        response.redirectedUrl == '/location/show/1'
+        response.redirectedUrl == '/admin/location/show/1'
         controller.flash.message != null
     }
 
@@ -112,7 +114,7 @@ class LocationControllerSpec extends Specification implements ControllerUnitTest
         controller.update(null)
 
         then:"A 302 error is returned"
-        response.redirectedUrl == '/location/index'
+        response.redirectedUrl == '/admin/location/index'
         flash.message != null
 
         when: "An invalid domain instance is passed to the update action"
@@ -137,7 +139,7 @@ class LocationControllerSpec extends Specification implements ControllerUnitTest
 
         then: "A redirect is issued to the show action"
         location != null
-        response.redirectedUrl == "/location/show/$location.id"
+        response.redirectedUrl == "/admin/location/show/$location.id"
         flash.message != null
     }
 
@@ -148,7 +150,7 @@ class LocationControllerSpec extends Specification implements ControllerUnitTest
         controller.delete(null)
 
         then: "A 302 is returned"
-        response.redirectedUrl == '/location/index'
+        response.redirectedUrl == '/admin/location/index'
         flash.message != null
 
         when: "A domain instance is created"
@@ -168,7 +170,7 @@ class LocationControllerSpec extends Specification implements ControllerUnitTest
 
         then: "The instance is deleted"
         Location.count() == 0
-        response.redirectedUrl == '/location/index'
+        response.redirectedUrl == '/admin/location/index'
         flash.message != null
     }
 }

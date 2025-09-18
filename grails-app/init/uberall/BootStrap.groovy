@@ -5,9 +5,10 @@ import jakarta.servlet.ServletContext
 class BootStrap {
 
     ServletContext servletContext
+    Converters converterBean
 
-    def init = {
-        // No-op
+    def init = { ServletContext ctx ->
+        converterBean.init()
     }
 
     def destroy = {

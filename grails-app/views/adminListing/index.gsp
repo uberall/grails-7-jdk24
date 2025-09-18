@@ -18,7 +18,20 @@
             <g:if test="${flash.message}">
                 <div class="message" role="status">${flash.message}</div>
             </g:if>
-            <f:table collection="${listingList}" />
+            <f:table collection="${listingList}" controller="adminListing">
+                <f:column property="id" title="ID"/>
+                <f:column property="directory" title="Directory"/>
+                <f:column property="status" title="Status"/>
+                <f:column title="Location">
+                    <g:link controller="adminLocation" action="show" id="${it.location?.id}">${it.location}</g:link>
+                </f:column>
+                <f:column title="Date Created">
+                    <g:formatDate date="${it.dateCreated?.toDate()}" format="yyyy-MM-dd HH:mm:ss"/>
+                </f:column>
+                <f:column title="Last Updated">
+                    <g:formatDate date="${it.lastUpdated}" format="yyyy-MM-dd HH:mm:ss"/>
+                </f:column>
+            </f:table>
 
             <div class="pagination">
                 <g:paginate total="${listingCount ?: 0}" />

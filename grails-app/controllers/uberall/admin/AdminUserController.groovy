@@ -1,6 +1,9 @@
-package uberall
+package uberall.admin
 
-class UserController {
+import uberall.User
+import uberall.UserService
+
+class AdminUserController {
 
     UserService userService
 

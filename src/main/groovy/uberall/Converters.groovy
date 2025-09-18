@@ -7,8 +7,8 @@ class Converters {
         JSON.registerObjectMarshaller(Location) { Location it ->
             def result = [
                 id          : it.id,
-                dateCreated : it.dateCreated,
-                lastUpdated : it.lastUpdated,
+                dateCreated : it.dateCreated?.toString(),
+                lastUpdated : it.lastUpdated?.toString(),
                 name        : it.name,
                 address     : it.address,
                 valid       : it.valid
@@ -19,8 +19,8 @@ class Converters {
         JSON.registerObjectMarshaller(Listing) { Listing it ->
             def result = [
                 id          : it.id,
-                dateCreated : it.dateCreated,
-                lastUpdated : it.lastUpdated,
+                dateCreated : it.dateCreated?.toString(),
+                lastUpdated : it.lastUpdated?.toString(),
                 directory   : it.directory,
                 status      : it.status,
                 location    : it.location ? [

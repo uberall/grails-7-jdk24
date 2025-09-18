@@ -1,12 +1,16 @@
-package uberall
+package uberall.admin
 
 import org.joda.time.DateTime
 import grails.testing.gorm.DataTest
 import grails.testing.web.controllers.ControllerUnitTest
 import spock.lang.Specification
+import uberall.Listing
+import uberall.ListingDataService
+import uberall.Location
+
 import static org.springframework.http.HttpStatus.*
 
-class ListingControllerSpec extends Specification implements ControllerUnitTest<ListingController>, DataTest {
+class AdminListingControllerSpec extends Specification implements ControllerUnitTest<AdminListingController>, DataTest {
 
     @Override
     Class[] getDomainClassesToMock() {
@@ -74,7 +78,7 @@ class ListingControllerSpec extends Specification implements ControllerUnitTest<
         controller.save(listing)
 
         then: "A redirect is issued to the show action"
-        response.redirectedUrl == '/listing/show/1'
+        response.redirectedUrl == '/admin/listing/show/1'
         controller.flash.message != null
     }
 
@@ -125,7 +129,7 @@ class ListingControllerSpec extends Specification implements ControllerUnitTest<
         controller.update(null)
 
         then:"A 302 error is returned"
-        response.redirectedUrl == '/listing/index'
+        response.redirectedUrl == '/admin/listing/index'
         flash.message != null
 
         when: "An invalid domain instance is passed to the update action"
@@ -151,7 +155,7 @@ class ListingControllerSpec extends Specification implements ControllerUnitTest<
 
         then: "A redirect is issued to the show action"
         listing != null
-        response.redirectedUrl == "/listing/show/$listing.id"
+        response.redirectedUrl == "/admin/listing/show/$listing.id"
         flash.message != null
     }
 
@@ -162,7 +166,7 @@ class ListingControllerSpec extends Specification implements ControllerUnitTest<
         controller.delete(null)
 
         then: "A 302 is returned"
-        response.redirectedUrl == '/listing/index'
+        response.redirectedUrl == '/admin/listing/index'
         flash.message != null
 
         when: "A domain instance is created"
@@ -183,7 +187,7 @@ class ListingControllerSpec extends Specification implements ControllerUnitTest<
 
         then: "The instance is deleted"
         Listing.count() == 0
-        response.redirectedUrl == '/listing/index'
+        response.redirectedUrl == '/admin/listing/index'
         flash.message != null
     }
 }
