@@ -49,7 +49,12 @@ select  DATE_FORMAT(joda_date_time, '%Y-%m-%d %H:%i') as jodaDatetime,
 from date_time_testing
 where id = :id
 """
-        List<GroovyRowResult> results = new Sql(dataSource).rows(sql, [id: dt.id])
+        def sqlInstance = new Sql(dataSource)
+        // query -> SELECT @@GLOBAL.time_zone, @@SESSION.time_zone;
+        String timezone = sqlInstance.firstRow("SELECT @@GLOBAL.time_zone as globalTz, @@SESSION.time_zone as sessionTz").toString()
+        LOG.info "SQL Instance Timezone: " + timezone
+
+        List<GroovyRowResult> results = sqlInstance.rows(sql, [id: dt.id])
         String jodaDateTimeString = results.find().getProperty('jodaDatetime')
         String javaDateTimeString = results.find().getProperty('javaDatetime')
 
