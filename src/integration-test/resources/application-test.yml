@@ -9,8 +9,3 @@ hibernate:
     auto: create-drop
   jdbc:
     time_zone: '+01:00'
-spring:
-  jpa:
-    properties:
-      jadira.usertype.databaseZone: '+01:00'
-      jadira.usertype.javaZone: 'jvm'
