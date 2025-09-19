@@ -51,7 +51,7 @@ where id = :id
 """
         def sqlInstance = new Sql(dataSource)
         // query -> SELECT @@GLOBAL.time_zone, @@SESSION.time_zone;
-        String timezone = sqlInstance.firstRow("SELECT @@GLOBAL.time_zone as globalTz, @@SESSION.time_zone as sessionTz").toString()
+        String timezone = sqlInstance.firstRow("SELECT @@GLOBAL.time_zone as globalTz, @@SESSION.time_zone as sessionTz")
         LOG.info "SQL Instance Timezone: " + timezone
 
         List<GroovyRowResult> results = sqlInstance.rows(sql, [id: dt.id])
