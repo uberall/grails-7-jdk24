@@ -7,3 +7,5 @@ dataSource:
 hibernate:
   hbm2ddl:
     auto: create-drop
+  jdbc:
+    time_zone: '+01:00'

@@ -57,11 +57,12 @@ where id = :id
         List<GroovyRowResult> results = sqlInstance.rows(sql, [id: dt.id])
         String jodaDateTimeString = results.find().getProperty('jodaDatetime')
         String javaDateTimeString = results.find().getProperty('javaDatetime')
+        LOG.info "1) javaDateTimeString (${javaDateTimeString}) == '2024-01-01 10:10' -> " + (javaDateTimeString == '2024-01-01 10:10').toString()
+        LOG.info "2) jodaDateTimeString (${jodaDateTimeString}) == '2024-01-01 10:10' -> " + (jodaDateTimeString == '2024-01-01 10:10').toString()
 
         then:
-        LOG.info "1) javaDateTimeString (${javaDateTimeString}) == '2024-01-01 10:10' -> " + (javaDateTimeString == '2024-01-01 10:10').toString()
+
         javaDateTimeString == '2024-01-01 10:10'
-        LOG.info "2) jodaDateTimeString (${jodaDateTimeString}) == '2024-01-01 10:10' -> " + (jodaDateTimeString == '2024-01-01 10:10').toString()
         jodaDateTimeString == '2024-01-01 10:10'
     }
 
@@ -78,11 +79,11 @@ where id = :id
 
         when:
         DateTimeTesting found = DateTimeTesting.get(dt.id)
+        LOG.info "1) found.javaDateTime (${found.javaDateTime}) == ${javaDateTime} -> " + (found.javaDateTime == javaDateTime).toString()
+        LOG.info "2) found.jodaDateTime (${found.jodaDateTime}) == ${jodaDateTime} -> " + (found.jodaDateTime == jodaDateTime).toString()
 
         then:
-        LOG.info "1) found.javaDateTime (${found.javaDateTime}) == ${javaDateTime} -> " + (found.javaDateTime == javaDateTime).toString()
         found.jodaDateTime == jodaDateTime
-        LOG.info "2) found.jodaDateTime (${found.jodaDateTime}) == ${jodaDateTime} -> " + (found.jodaDateTime == jodaDateTime).toString()
         found.javaDateTime == javaDateTime
     }
 }
