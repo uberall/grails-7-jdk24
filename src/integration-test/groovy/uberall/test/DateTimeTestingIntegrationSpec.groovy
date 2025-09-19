@@ -12,53 +12,72 @@ import javax.sql.DataSource
 import java.time.Instant
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 @Integration
 @Transactional
 class DateTimeTestingIntegrationSpec extends Specification {
+    private static final Logger LOG = LoggerFactory.getLogger(DateTimeTestingIntegrationSpec)
     DataSource dataSource
+    TimeZone defaultTz
 
-    void "joda DateTime and java OffsetDateTime are being stored correctly"() {
-        when: 'we expect the servers to be in UTC+01:00 timezone for set datetime 2024-01-01 10:10:00'
-        TimeZone defaultTz = TimeZone.default
+    def setup() {
+        defaultTz = TimeZone.default
         TimeZone.setDefault(TimeZone.getTimeZone('Europe/Berlin'))
-        DateTime jodaDateTime = new DateTime(
-                2024, 1, 1, 10, 10,
-                DateTimeZone.forID('+01:00')
-        )
-        OffsetDateTime javaDateTime = OffsetDateTime.of(
-                2024, 1, 1, 10, 10, 0, 0,
-                ZoneOffset.of("+01:00")
-        )
+    }
 
-        and:
-        DateTimeTesting dateTimeTesting = new DateTimeTesting()
-        dateTimeTesting.createdAtEpochSeconds = Instant.now().epochSecond
-        dateTimeTesting.jodaDateTime = jodaDateTime
-        dateTimeTesting.javaDateTime = javaDateTime
-        dateTimeTesting.save(flush: true)
+    def cleanup() {
+        TimeZone.setDefault(defaultTz)
+    }
 
-        then:
+    void "raw SQL storage honors local timezone"() {
+        given:
+        DateTime jodaDateTime = new DateTime(2024, 1, 1, 10, 10, DateTimeZone.forID('+01:00'))
+        OffsetDateTime javaDateTime = OffsetDateTime.of(2024, 1, 1, 10, 10, 0, 0, ZoneOffset.of('+01:00'))
+        DateTimeTesting dt = new DateTimeTesting(
+                createdAtEpochSeconds: Instant.now().epochSecond,
+                jodaDateTime: jodaDateTime,
+                javaDateTime: javaDateTime
+        )
+        dt.save(flush: true)
+
+        when:
         String sql = """
 select  DATE_FORMAT(joda_date_time, '%Y-%m-%d %H:%i') as jodaDatetime,
         DATE_FORMAT(java_date_time, '%Y-%m-%d %H:%i') as javaDatetime
 from date_time_testing
 where id = :id
 """
-        List<GroovyRowResult> results = new Sql(dataSource).rows(sql, [id: dateTimeTesting.id])
-        String jodaDateTimeString =  results.find().getProperty('jodaDatetime')
-        String javaDateTimeString =  results.find().getProperty('javaDatetime')
+        List<GroovyRowResult> results = new Sql(dataSource).rows(sql, [id: dt.id])
+        String jodaDateTimeString = results.find().getProperty('jodaDatetime')
+        String javaDateTimeString = results.find().getProperty('javaDatetime')
 
-        and: 'we expect the same local Berlin time stored (no UTC shift applied)'
+        then:
+        LOG.info "1) javaDateTimeString (${javaDateTimeString}) == '2024-01-01 10:10' -> " + (javaDateTimeString == '2024-01-01 10:10').toString()
         javaDateTimeString == '2024-01-01 10:10'
+        LOG.info "2) jodaDateTimeString (${jodaDateTimeString}) == '2024-01-01 10:10' -> " + (jodaDateTimeString == '2024-01-01 10:10').toString()
         jodaDateTimeString == '2024-01-01 10:10'
+    }
 
-        and: 'dates are being read and parsed correctly'
-        DateTimeTesting found = DateTimeTesting.get(dateTimeTesting.id)
+    void "GORM readback yields the exact same objects"() {
+        given:
+        DateTime jodaDateTime = new DateTime(2024, 1, 1, 10, 10, DateTimeZone.forID('+01:00'))
+        OffsetDateTime javaDateTime = OffsetDateTime.of(2024, 1, 1, 10, 10, 0, 0, ZoneOffset.of('+01:00'))
+        DateTimeTesting dt = new DateTimeTesting(
+                createdAtEpochSeconds: Instant.now().epochSecond,
+                jodaDateTime: jodaDateTime,
+                javaDateTime: javaDateTime
+        )
+        dt.save(flush: true)
+
+        when:
+        DateTimeTesting found = DateTimeTesting.get(dt.id)
+
+        then:
+        LOG.info "1) found.javaDateTime (${found.javaDateTime}) == ${javaDateTime} -> " + (found.javaDateTime == javaDateTime).toString()
         found.jodaDateTime == jodaDateTime
+        LOG.info "2) found.jodaDateTime (${found.jodaDateTime}) == ${jodaDateTime} -> " + (found.jodaDateTime == jodaDateTime).toString()
         found.javaDateTime == javaDateTime
-
-        cleanup:
-        TimeZone.setDefault(defaultTz)
     }
 }

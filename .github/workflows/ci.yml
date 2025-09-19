@@ -49,5 +49,8 @@ jobs:
       - name: Test
         run: ./gradlew --no-daemon test
 
+      - name: IntegrationTest
+        run: ./gradlew --no-daemon integrationTest --info
+
       - name: Build
         run: ./gradlew --no-daemon build -x codenarcMain -x codenarcTest -x codenarcIntegrationTest
