@@ -37,6 +37,8 @@ repositories {
     // Order fastest & most-used first
     mavenLocal()
     mavenCentral()
+    maven { url "https://repo.grails.org/grails/restricted" }
+    maven { url "https://repo.grails.org/grails/core" }
     // GitHub Packages (restrict to uberall groups to avoid wide metadata queries)
     maven {
         url "https://maven.pkg.github.com/uberall/*"
@@ -69,7 +71,6 @@ repositories {
             basic(BasicAuthentication)
         }
     }
-    maven { url "https://repo.grails.org/grails/core" }
     maven { url "https://jaspersoft.jfrog.io/artifactory/third-party-ce-artifacts" }
     maven {
         url "https://gitlab.com/api/v4/groups/momentfeed/-/packages/maven"
@@ -130,11 +131,11 @@ dependencies {
     implementation("org.grails:grails-async-gpars:5.0.2") {
         exclude group: 'org.codehaus.groovy', module: 'groovy'
     }
-    implementation 'org.grails.plugins:grails-mail:5.0.2'
+    implementation "org.grails.plugins:grails-mail:5.0.2"
     implementation "org.grails.plugins:sentry:11.7.25"
+    implementation "org.apache.grails:grails-redis:5.0.0-RC2"
     //implementation 'org.grails.plugins:csv:1.0.1'
     //implementation 'org.grails.plugins:oauth:4.0.0'
-    //implementation 'org.grails.plugins:redis:2.0.5'
 
     // AWS dependencies
     implementation "software.amazon.awssdk:iam-policy-builder:${awsSdkVersion}"
@@ -161,6 +162,8 @@ dependencies {
     implementation 'org.jadira.usertype:usertype.jodatime:2.0.1'
     implementation 'org.jadira.usertype:usertype.spi:2.0.1'
     implementation 'com.vdurmont:emoji-java:5.1.1' // emoji detection library – supports up to Unicode 11.0 emojis. See changelog: https://github.com/vdurmont/emoji-java/blob/master/CHANGELOG.md
+    implementation 'com.drewnoakes:metadata-extractor:2.19.0' //image metadata extraction
+
 
     implementation 'org.apache.commons:commons-lang3:3.18.0' //TODO: check version
     implementation 'org.apache.commons:commons-text:1.14.0' // for StringEscapeUtils (html unescape)
