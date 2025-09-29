@@ -25,14 +25,71 @@ apply plugin: "org.apache.grails.gradle.grails-web"
 apply plugin: "org.apache.grails.gradle.grails-gsp"
 apply plugin: "cloud.wondrify.asset-pipeline"
 
+configurations.configureEach {
+    resolutionStrategy {
+        force 'com.google.protobuf:protobuf-java:3.19.6'
+    }
+}
+
 group = "com.uberall"
 
 repositories {
+    // Order fastest & most-used first
+    mavenLocal()
     mavenCentral()
+    // GitHub Packages (restrict to uberall groups to avoid wide metadata queries)
     maven {
-       url = 'https://repo.grails.org/grails/restricted'
+        url "https://maven.pkg.github.com/uberall/*"
+        credentials {
+            username = System.getenv("GITHUB_USER") ?: githubUser
+            password = System.getenv("GITHUB_TOKEN") ?: githubToken
+
+            if (!username || !password) {
+                println("================================================")
+                println("= YOU NEED TO SET GITHUB_USER AND GITHUB_TOKEN =")
+                println("= IN ORDER TO PULL FROM GITHUB PACKAGES        =")
+                println("================================================")
+            }
+        }
+        // Narrow repository content to reduce metadata lookups
+        content {
+            includeGroupByRegex "com\\.uberall(\\..*)?"
+            includeGroup "com.uberall.peon"
+            includeGroup "cloud.wondrify"
+        }
     }
-    maven { url "https://repo.grails.org/grails/core/" }
+    maven {
+        url "https://gitlab.com/api/v4/projects/59889056/dependency_proxy/packages/maven"
+        name "GitLab Dependency Proxy"
+        credentials(PasswordCredentials) {
+            username = 'gitlab-ci-token'
+            password = System.getenv("CI_JOB_TOKEN")
+        }
+        authentication {
+            basic(BasicAuthentication)
+        }
+    }
+    maven { url "https://repo.grails.org/grails/core" }
+    maven { url "https://jaspersoft.jfrog.io/artifactory/third-party-ce-artifacts" }
+    maven {
+        url "https://gitlab.com/api/v4/groups/momentfeed/-/packages/maven"
+        name "GitLab"
+        credentials(HttpHeaderCredentials) {
+            name = "Private-Token"
+            value = project.findProperty("gitlab.token.value")?.toString() ?: System.getenv("GITLAB_COM_TOKEN")
+
+            if (!value) {
+                println("===================================================================")
+                println("= YOU NEED TO SET GITLAB_COM_TOKEN or gitlab.token.value IN ORDER =")
+                println("= TO PULL FROM GITLAB CLOUD PACKAGES. MINIMUM SCOPE: read_api     =")
+                println("= CREATE HERE https://gitlab.com/-/profile/personal_access_tokens =")
+                println("===================================================================")
+            }
+        }
+        authentication {
+            header(HttpHeaderAuthentication)
+        }
+    }
 }
 
 dependencies {
@@ -49,7 +106,6 @@ dependencies {
     implementation "org.apache.grails:grails-databinding"
     implementation "org.apache.grails:grails-events"
     implementation "org.apache.grails:grails-gsp"
-    implementation "org.apache.grails:grails-i18n"
     implementation "org.apache.grails:grails-interceptors"
     implementation "org.apache.grails:grails-layout"
     implementation "org.apache.grails:grails-logging"
@@ -71,11 +127,34 @@ dependencies {
     runtimeOnly "org.fusesource.jansi:jansi"
 
     //grails plugins
-    //implementation 'org.grails.plugins:csv:1.0.1'
+    implementation("org.grails:grails-async-gpars:5.0.2") {
+        exclude group: 'org.codehaus.groovy', module: 'groovy'
+    }
     implementation 'org.grails.plugins:grails-mail:5.0.2'
+    implementation "org.grails.plugins:sentry:11.7.25"
+    //implementation 'org.grails.plugins:csv:1.0.1'
     //implementation 'org.grails.plugins:oauth:4.0.0'
     //implementation 'org.grails.plugins:redis:2.0.5'
-    implementation "org.grails.plugins:sentry:11.7.25"
+
+    // AWS dependencies
+    implementation "software.amazon.awssdk:iam-policy-builder:${awsSdkVersion}"
+    implementation "software.amazon.awssdk:s3:${awsSdkVersion}"
+    implementation "software.amazon.awssdk:core:${awsSdkVersion}"
+    implementation "software.amazon.awssdk:quicksight:${awsSdkVersion}"
+    implementation "software.amazon.awssdk:lambda:${awsSdkVersion}"
+
+    // Localstack testing
+    testImplementation "org.testcontainers:testcontainers:1.20.0"
+    testImplementation "org.testcontainers:localstack:1.20.0"
+    testImplementation "org.testcontainers:spock:1.20.0"
+
+    // resilience 4j
+    testImplementation 'io.github.resilience4j:resilience4j-retry:1.7.1'
+    implementation 'io.github.resilience4j:resilience4j-retry:1.7.1'
+
+    // Peon
+    implementation 'com.uberall.peon:peon-sdk-jdk8:2.3.11'
+
 
     //other libraries
     implementation "joda-time:joda-time:2.12.7"
@@ -102,14 +181,37 @@ dependencies {
     testImplementation "org.apache.grails:grails-testing-support-web"
     testImplementation "org.spockframework:spock-core"
     testImplementation "org.testcontainers:mysql"
-    testImplementation "org.testcontainers:spock"
-    testImplementation "org.testcontainers:testcontainers"
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(24)
+    }
 }
 
 compileJava.options.release = 24
 
-tasks.withType(Test) {
+// Enable invokedynamic for Groovy for better runtime performance (and often faster incremental compiles)
+tasks.withType(GroovyCompile).configureEach {
+    groovyOptions.optimizationOptions.indy = true
+    groovyOptions.encoding = 'UTF-8'
+}
+
+tasks.withType(Test).configureEach {
     useJUnitPlatform()
+    // Parallel test execution (tune: typically number of cores / 2 for heavier integration tests)
+    def cores = Runtime.runtime.availableProcessors()
+    maxParallelForks = Math.max(1, (int) (cores / 2))
+    forkEvery = 0 // reuse forks
+    // Conservative memory sizing; adjust as needed based on OOMs
+    maxHeapSize = '1024m'
+    jvmArgs += ['-XX:+UseG1GC', '-Dfile.encoding=UTF-8']
+
+    testLogging {
+        events 'failed'
+        exceptionFormat 'short'
+        showStandardStreams = false
+    }
 }
 
 assets {
@@ -127,10 +229,35 @@ assets {
     ]
 }
 
+// Ensure GSPs and other Grails resources are available to bootRun (dev mode)
+sourceSets {
+    main {
+        resources {
+            srcDir 'grails-app/views'
+            srcDir 'grails-app/i18n'
+            srcDir 'grails-app/conf'
+        }
+    }
+}
+
+// Make sure bootRun serves GSPs from sources and enables reloading
+tasks.register('configureBootRun') {
+    // Dummy task to ensure configuration after plugins are applied
+    doLast {}
+}
+
+tasks.named('bootRun') { t ->
+    t.dependsOn tasks.named('configureBootRun')
+    t.sourceResources sourceSets.main
+    t.systemProperty 'spring.output.ansi.enabled', 'always'
+    // GSP reloading flags (Grails/Spring Boot integration)
+    t.systemProperty 'grails.gsp.enable.reload', 'true'
+    t.systemProperty 'spring.gsp.reloading.enabled', 'true'
+}
+
 codenarc {
-    // CodeNarc 3.6.0 doesn't support Java 24 yet (major version 68)
     // Using latest available version
-    toolVersion = '3.6.0'
+    toolVersion = '3.6.0-groovy-4.0'
     configFile = file('src/main/groovy/uberall/UberallRules.groovy')
 }
 

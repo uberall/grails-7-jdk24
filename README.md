@@ -8,21 +8,23 @@ This project is a Grails 7 (7.0.0-RC1) application targeting JDK 24. The goal is
    - cd docker-compose
    - docker-compose up -d
 
-2. Run database migrations (Liquibase)
+2. Set Java 24 with SDKMAN
+   - sdk install java 24.0.2-amzn
+   - sdk use java 24.0.2-amzn
+
+3. Run database migrations (Liquibase)
    - Auto-run is disabled by default now.
    - You can run migrations manually via cli:
      - ./gradlew dbmUpdate
 
-3. Switch to JDK21 & run CodeNarc with Gradle:
-   -  sdk use java 21.0.8-amzn
+4. Run CodeNarc with Gradle:
    - ./gradlew clean codenarcMain codenarcTest codenarcIntegrationTest
    - results : ./build/reports/codenarc
    
 This project uses the Gradle CodeNarc plugin with a custom ruleset at:
 - src/main/groovy/uberall/UberallRules.groovy
 
-4. Run the application (JDK 24)
-   - sdk use java 24.0.2-amzn
+5. Run the application
    - ./gradlew bootRun
    - App will start at http://localhost:8090
 

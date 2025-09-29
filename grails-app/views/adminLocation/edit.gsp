@@ -29,7 +29,7 @@
             <g:form controller="adminLocation" action="update" id="${this.location.id}" method="PUT">
                 <g:hiddenField name="version" value="${this.location?.version}" />
                 <fieldset class="form">
-                    <f:all bean="location"/>
+                    <f:all bean="${this.location}"/>
                 </fieldset>
                 <fieldset class="buttons">
                     <input class="save" type="submit" value="${message(code: 'default.button.update.label', default: 'Update')}" />

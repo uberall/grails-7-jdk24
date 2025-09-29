@@ -12,6 +12,10 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      GITHUB_USER: ${{ secrets.MY_GITHUB_USER }}
+      GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
+      GITLAB_COM_TOKEN: ${{ secrets.GITLAB_COM_TOKEN }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -29,22 +33,8 @@ jobs:
       - name: Gradle Clean
         run: ./gradlew --no-daemon clean
 
-      - name: Set up JDK 21 for CodeNarc
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '21'
-          cache: 'gradle'
-
-      - name: CodeNarc (runs with JDK 21)
+      - name: CodeNarc
         run: ./gradlew --no-daemon codenarcMain codenarcTest codenarcIntegrationTest
-
-      - name: Restore JDK 24 for build/tests
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '24'
-          cache: 'gradle'
 
       - name: Test
         run: ./gradlew --no-daemon test
