@@ -1,0 +1,28 @@
+rootProject.name = 'grails7-jdk24'
+
+// Centralized repository definition for plugin management (optional future tweak)
+// pluginManagement {
+//     repositories {
+//         mavenLocal()
+//         gradlePluginPortal()
+//         mavenCentral()
+//     }
+// }
+
+buildCache {
+    local {
+        // Keep cache reasonably pruned
+        removeUnusedEntriesAfterDays = 30
+    }
+    // Remote cache example (disabled by default). Configure a shared build cache later if desired.
+    // remote(HttpBuildCache) {
+    //     url = uri(System.getenv('GRADLE_CACHE_URL') ?: 'https://your-cache.example.com/cache/')
+    //     push = System.getenv('GRADLE_CACHE_PUSH') == 'true'
+    //     allowInsecureProtocol = false
+    //     enabled = System.getenv('GRADLE_REMOTE_CACHE') == 'true'
+    // }
+}
+
+// Can enable for multi-module ergonomics later; leaving off to keep config-cache surface smaller.
+// enableFeaturePreview('TYPESAFE_PROJECT_ACCESSORS')
+

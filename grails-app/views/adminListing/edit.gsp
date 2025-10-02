@@ -29,7 +29,7 @@
             <g:form controller="adminListing" action="update" id="${this.listing.id}" method="PUT">
                 <g:hiddenField name="version" value="${this.listing?.version}" />
                 <fieldset class="form">
-                    <f:all bean="listing"/>
+                    <f:all bean="${this.listing}"/>
                 </fieldset>
                 <fieldset class="buttons">
                     <input class="save" type="submit" value="${message(code: 'default.button.update.label', default: 'Update')}" />
