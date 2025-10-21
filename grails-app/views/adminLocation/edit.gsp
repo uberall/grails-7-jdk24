@@ -33,6 +33,7 @@
                 </fieldset>
                 <fieldset class="buttons">
                     <input class="save" type="submit" value="${message(code: 'default.button.update.label', default: 'Update')}" />
+                    <a class="create" href="${createLink(uri: "/admin/listing/create?location.id=${this.location.id}")}"><g:message code="default.button.create.label" default="Create Listing" /></a>
                 </fieldset>
             </g:form>
         </div>

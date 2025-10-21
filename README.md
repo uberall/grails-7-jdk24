@@ -1,6 +1,12 @@
 # Grails 7 (JDK 24) Demonstration Project
 
-This project is a Grails 7 (7.0.0-RC1) application targeting JDK 24. The goal is to provide a minimal reference for how to run the app locally and how to run CodeNarc.
+This project is a Grails 7 (7.0.0) application targeting JDK 24. The goal is to provide a minimal reference for how to run the app locally and how to run CodeNarc.
+
+## Application Details
+- **Grails Version**: 7.0.0
+- **JDK Version**: 24.0.2
+- **Spring Boot Version**: 3.5.5
+- **Groovy Version**: 4.0.28
 
 ## How to run
 
@@ -30,7 +36,14 @@ This project uses the Gradle CodeNarc plugin with a custom ruleset at:
 
 ## Using the API
 
-API base path: /api/v1
+API base path: /api
+
+- List all Locations
+  - Request:
+    curl -s -X GET "http://localhost:8090/api/locations" \
+      -H "Content-Type: application/json"
+  - Example response (200 OK):
+    Returns an array of all locations
 
 - Create a Location
   - Request:
@@ -42,11 +55,20 @@ API base path: /api/v1
           }'
   - Example response (201 Created):
     {
-      "id": 1,
+      "id": 3,
       "name": "Central Park",
       "address": "5th Ave, New York, NY",
-      "valid": false
+      "valid": false,
+      "dateCreated": "2025-10-21T11:02:34+02:00",
+      "lastUpdated": "2025-10-21T11:02:34+02:00"
     }
+
+- List all Listings
+  - Request:
+    curl -s -X GET "http://localhost:8090/api/listings" \
+      -H "Content-Type: application/json"
+  - Example response (200 OK):
+    Returns an array of all listings
 
 - Create a Listing for a Location
   - Requirements: use an existing location id (e.g., 1 from previous step)
@@ -58,16 +80,44 @@ API base path: /api/v1
       -d '{
             "directory": "Google",
             "status": "Active",
-            "location": { "id": 1 }
+            "location": { "id": 3 }
           }'
   - Example response (201 Created):
     {
-      "id": 1,
+      "id": 9,
       "directory": "Google",
       "status": "Active",
-      "location": { "id": 1 }
+      "location": { "id": 3, "name": "Central Park", "address": "5th Ave, New York, NY" },
+      "dateCreated": "2025-10-21T11:02:39+02:00",
+      "lastUpdated": "2025-10-21T11:02:39+02:00"
     }
+
+- Get a Specific Listing
+  - Request:
+    curl -s -X GET "http://localhost:8090/api/listings/9" \
+      -H "Content-Type: application/json"
+  - Example response (200 OK):
+    Returns the specific listing details
+
+- Update a Listing
+  - Request:
+    curl -s -X PUT "http://localhost:8090/api/listings/9" \
+      -H "Content-Type: application/json" \
+      -d '{
+            "directory": "Facebook",
+            "status": "Active"
+          }'
+  - Example response (200 OK):
+    Returns the updated listing
+
+- Delete a Listing
+  - Request:
+    curl -s -X DELETE "http://localhost:8090/api/listings/9" \
+      -H "Content-Type: application/json"
+  - Example response (204 No Content):
+    No response body
 
 Notes:
 - Endpoints follow Grails RESTful resource mappings defined in UrlMappings.groovy.
 - If you send form-encoded data instead of JSON, adjust headers and body accordingly.
+- The same CRUD operations are available for both locations and listings
