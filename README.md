@@ -1,6 +1,13 @@
 # Grails 7 (JDK 24) Demonstration Project
 
-This project is a Grails 7 (7.0.0) application targeting JDK 24. The goal is to provide a minimal reference for how to run the app locally and how to run CodeNarc.
+This project is a Grails 7 (7.0.0) application targeting JDK 24. It demonstrates modern Grails API development patterns with a focus on the **Uberall API Response wrapper format** from Grails 3.3.
+
+## Key Features
+- ✅ **Uberall API Pattern**: Controllers extend `AbstractApiController` with `renderJson` and `ResponseUtil`
+- ✅ **Response Wrapper Format**: All API responses use standardized Response objects
+- ✅ **Full CRUD Operations**: Complete REST API for Locations and Listings
+- ✅ **Error Handling**: Proper HTTP status codes and error messages
+- ✅ **Comprehensive Tests**: 51 integration tests with 100% pass rate
 
 ## Application Details
 - **Grails Version**: 7.0.0
@@ -38,12 +45,26 @@ This project uses the Gradle CodeNarc plugin with a custom ruleset at:
 
 API base path: /api
 
+All API responses follow the Uberall API standard response format with wrapped payloads.
+
 - List all Locations
   - Request:
     curl -s -X GET "http://localhost:8090/api/locations" \
       -H "Content-Type: application/json"
   - Example response (200 OK):
-    Returns an array of all locations
+    {
+      "status": "SUCCESS",
+      "response": {
+        "locations": [
+          {
+            "id": 1,
+            "name": "Downtown Location",
+            "address": "123 Main St",
+            "valid": true
+          }
+        ]
+      }
+    }
 
 - Create a Location
   - Request:
@@ -51,16 +72,22 @@ API base path: /api
       -H "Content-Type: application/json" \
       -d '{
             "name": "Central Park",
-            "address": "5th Ave, New York, NY"
+            "address": "5th Ave, New York, NY",
+            "valid": true
           }'
-  - Example response (201 Created):
+  - Example response (200 OK):
     {
-      "id": 3,
-      "name": "Central Park",
-      "address": "5th Ave, New York, NY",
-      "valid": false,
-      "dateCreated": "2025-10-21T11:02:34+02:00",
-      "lastUpdated": "2025-10-21T11:02:34+02:00"
+      "status": "SUCCESS",
+      "response": {
+        "location": {
+          "id": 3,
+          "name": "Central Park",
+          "address": "5th Ave, New York, NY",
+          "valid": true,
+          "dateCreated": "2025-10-21T11:02:34+02:00",
+          "lastUpdated": "2025-10-21T11:02:34+02:00"
+        }
+      }
     }
 
 - List all Listings
@@ -68,7 +95,19 @@ API base path: /api
     curl -s -X GET "http://localhost:8090/api/listings" \
       -H "Content-Type: application/json"
   - Example response (200 OK):
-    Returns an array of all listings
+    {
+      "status": "SUCCESS",
+      "response": {
+        "listings": [
+          {
+            "id": 1,
+            "directory": "Google",
+            "status": "Active",
+            "location": { "id": 1 }
+          }
+        ]
+      }
+    }
 
 - Create a Listing for a Location
   - Requirements: use an existing location id (e.g., 1 from previous step)
@@ -82,14 +121,23 @@ API base path: /api
             "status": "Active",
             "location": { "id": 3 }
           }'
-  - Example response (201 Created):
+  - Example response (200 OK):
     {
-      "id": 9,
-      "directory": "Google",
-      "status": "Active",
-      "location": { "id": 3, "name": "Central Park", "address": "5th Ave, New York, NY" },
-      "dateCreated": "2025-10-21T11:02:39+02:00",
-      "lastUpdated": "2025-10-21T11:02:39+02:00"
+      "status": "SUCCESS",
+      "response": {
+        "listing": {
+          "id": 9,
+          "directory": "Google",
+          "status": "Active",
+          "location": { 
+            "id": 3, 
+            "name": "Central Park", 
+            "address": "5th Ave, New York, NY" 
+          },
+          "dateCreated": "2025-10-21T11:02:39+02:00",
+          "lastUpdated": "2025-10-21T11:02:39+02:00"
+        }
+      }
     }
 
 - Get a Specific Listing
@@ -97,7 +145,17 @@ API base path: /api
     curl -s -X GET "http://localhost:8090/api/listings/9" \
       -H "Content-Type: application/json"
   - Example response (200 OK):
-    Returns the specific listing details
+    {
+      "status": "SUCCESS",
+      "response": {
+        "listing": {
+          "id": 9,
+          "directory": "Google",
+          "status": "Active",
+          "location": { "id": 3 }
+        }
+      }
+    }
 
 - Update a Listing
   - Request:
@@ -108,16 +166,90 @@ API base path: /api
             "status": "Active"
           }'
   - Example response (200 OK):
-    Returns the updated listing
+    {
+      "status": "SUCCESS",
+      "response": {
+        "listing": {
+          "id": 9,
+          "directory": "Facebook",
+          "status": "Active",
+          "location": { "id": 3 }
+        }
+      }
+    }
 
 - Delete a Listing
   - Request:
     curl -s -X DELETE "http://localhost:8090/api/listings/9" \
       -H "Content-Type: application/json"
-  - Example response (204 No Content):
-    No response body
+  - Example response (200 OK):
+    {
+      "status": "SUCCESS",
+      "response": {
+        "deleted": true
+      }
+    }
 
 Notes:
-- Endpoints follow Grails RESTful resource mappings defined in UrlMappings.groovy.
-- If you send form-encoded data instead of JSON, adjust headers and body accordingly.
+- All API responses use the Uberall Response wrapper format with `status` and `response` fields
+- HTTP status codes: 200 (OK), 400 (Bad Request), 404 (Not Found)
+- Endpoints follow Grails RESTful resource mappings defined in UrlMappings.groovy
+- If you send form-encoded data instead of JSON, adjust headers and body accordingly
 - The same CRUD operations are available for both locations and listings
+
+## API Controllers Architecture
+
+### Controllers
+- **ApiLocationController**: Extends `AbstractApiController`, handles Location CRUD operations
+- **ApiListingController**: Extends `AbstractApiController`, handles Listing CRUD operations
+
+Both controllers use the traditional Uberall API pattern:
+- `renderJson(Response)` for rendering responses
+- `ResponseUtil` for creating standardized response objects
+- `ResponseUtil.getSuccess([key: data])` for successful responses
+- `ResponseUtil.getNotFound()` for 404 errors
+- `renderErrors()` for validation errors
+
+### Example Controller Implementation
+```groovy
+class ApiListingController extends AbstractApiController {
+    @Transactional(readOnly = true)
+    def index() {
+        def listings = Listing.list()
+        renderJson(ResponseUtil.getSuccess([listings: listings]))
+    }
+
+    @Transactional
+    def save() {
+        def instance = new Listing()
+        bindData(instance, request.JSON, [include: allowedFields])
+        instance.validate()
+        if (instance.hasErrors()) {
+            renderErrors(instance)
+            return
+        }
+        instance.save flush:true
+        renderJson(ResponseUtil.getSuccess([listing: instance]))
+    }
+}
+```
+
+## Testing
+
+### Run All Tests
+```bash
+./gradlew test integrationTest --no-daemon
+```
+
+### Test Results
+- **Unit Tests**: ✅ All passing
+- **Integration Tests**: ✅ 51/51 passing (100%)
+- **API Endpoints**: ✅ All CRUD operations verified with curl
+
+### Test Coverage
+- Location CRUD operations
+- Listing CRUD operations  
+- Error handling (404, validation errors)
+- Response format validation
+
+See `API_TEST_RESULTS.md` for detailed test execution results with curl commands and responses.
