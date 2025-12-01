@@ -44,6 +44,7 @@
             <g:form controller="adminLocation" action="delete" id="${this.location.id}" method="DELETE">
                 <fieldset class="buttons">
                     <g:link class="edit" action="edit" controller="adminLocation" id="${this.location.id}"><g:message code="default.button.edit.label" default="Edit" /></g:link>
+                    <a class="create" href="${createLink(uri: "/admin/listing/create?location.id=${this.location.id}")}"><g:message code="default.button.create.label" default="Create Listing" /></a>
                     <input class="delete" type="submit" value="${message(code: 'default.button.delete.label', default: 'Delete')}" onclick="return confirm('${message(code: 'default.button.delete.confirm.message', default: 'Are you sure?')}');" />
                 </fieldset>
             </g:form>

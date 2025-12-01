@@ -35,13 +35,13 @@ class ApiListingControllerSpec extends Specification implements ControllerUnitTe
         controller.save()
 
         then: "The response is successful"
-        response.status == 201
+        response.status == 200
 
         and: "The response contains the created listing with an ID"
-        response.json.id != null
-        response.json.directory == "Google"
-        response.json.status == "Active"
-        response.json.location.id == testLocation.id
+        response.json.response.listing.id != null
+        response.json.response.listing.directory == "Google"
+        response.json.response.listing.status == "Active"
+        response.json.response.listing.location.id == testLocation.id
 
         and: "The listing is persisted in the database"
         Listing.count() == 1
@@ -64,7 +64,7 @@ class ApiListingControllerSpec extends Specification implements ControllerUnitTe
         controller.save()
 
         then: "The response indicates validation failure"
-        response.status == 422
+        response.status == 400
 
         and: "No listing is created in the database"
         Listing.count() == 0
@@ -102,7 +102,7 @@ class ApiListingControllerSpec extends Specification implements ControllerUnitTe
         controller.save()
 
         then: "The response indicates validation failure"
-        response.status == 422
+        response.status == 400
 
         and: "No listing is created in the database"
         Listing.count() == 0
@@ -121,7 +121,7 @@ class ApiListingControllerSpec extends Specification implements ControllerUnitTe
         controller.save()
 
         then: "The response indicates validation failure"
-        response.status == 422
+        response.status == 400
 
         and: "No listing is created in the database"
         Listing.count() == 0
@@ -135,8 +135,8 @@ class ApiListingControllerSpec extends Specification implements ControllerUnitTe
         response.status == 200
 
         and: "The response contains an empty array"
-        response.json instanceof List
-        response.json.size() == 0
+        response.json.response.listings instanceof List
+        response.json.response.listings.size() == 0
     }
 
     void "GET /api/listings returns list of listings as JSON"() {
@@ -153,10 +153,10 @@ class ApiListingControllerSpec extends Specification implements ControllerUnitTe
         response.status == 200
 
         and: "The response contains the listings as JSON array"
-        response.json instanceof List
-        response.json.size() == 2
-        response.json.find { it.directory == "Google" && it.status == "Active" } != null
-        response.json.find { it.directory == "Facebook" && it.status == "InSync" } != null
+        response.json.response.listings instanceof List
+        response.json.response.listings.size() == 2
+        response.json.response.listings.find { it.directory == "Google" && it.status == "Active" } != null
+        response.json.response.listings.find { it.directory == "Facebook" && it.status == "InSync" } != null
     }
 
     void "GET /api/listings/{id} with non-existent ID returns 404"() {
@@ -203,7 +203,7 @@ class ApiListingControllerSpec extends Specification implements ControllerUnitTe
         controller.update()
 
         then: "The response indicates validation failure"
-        response.status == 422
+        response.status == 400
 
         and: "The listing is not updated in the database"
         def unchangedListing = Listing.get(listing.id)
@@ -233,10 +233,10 @@ class ApiListingControllerSpec extends Specification implements ControllerUnitTe
         response.status == 200
 
         and: "The response contains the listing data"
-        response.json.id == listing.id
-        response.json.directory == "Yelp"
-        response.json.status == "OutOfSync"
-        response.json.location.id == testLocation.id
+        response.json.response.listing.id == listing.id
+        response.json.response.listing.directory == "Yelp"
+        response.json.response.listing.status == "OutOfSync"
+        response.json.response.listing.location.id == testLocation.id
     }
 
     void "PUT /api/listings/{id} updates existing listing"() {
@@ -264,6 +264,10 @@ class ApiListingControllerSpec extends Specification implements ControllerUnitTe
         updatedListing.directory == "Apple"
         updatedListing.status == "Deleted"
         updatedListing.location.id == testLocation.id
+
+        and: "The response contains the updated listing"
+        response.json.response.listing.directory == "Apple"
+        response.json.response.listing.status == "Deleted"
     }
 
     void "DELETE /api/listings/{id} deletes existing listing"() {
@@ -277,7 +281,7 @@ class ApiListingControllerSpec extends Specification implements ControllerUnitTe
         controller.delete()
 
         then: "The response is successful"
-        response.status == 204
+        response.status == 200
 
         and: "The listing is removed from the database"
         Listing.get(listingId) == null
@@ -298,6 +302,7 @@ class ApiListingControllerSpec extends Specification implements ControllerUnitTe
         then:
         response.status == 200
         Listing.get(listing.id).directory == directory
+        response.json.response.listing.directory == directory
 
         where:
         directory << Listing.directories
@@ -317,8 +322,9 @@ class ApiListingControllerSpec extends Specification implements ControllerUnitTe
         controller.save()
 
         then:
-        response.status == 201
+        response.status == 200
         Listing.findByStatus(status) != null
+        response.json.response.listing.status == status
 
         where:
         status << Listing.statuses
@@ -342,6 +348,7 @@ class ApiListingControllerSpec extends Specification implements ControllerUnitTe
         then:
         response.status == 200
         Listing.get(listing.id).directory == directory
+        response.json.response.listing.directory == directory
 
         where:
         directory << Listing.directories
@@ -365,6 +372,7 @@ class ApiListingControllerSpec extends Specification implements ControllerUnitTe
         then:
         response.status == 200
         Listing.get(listing.id).status == status
+        response.json.response.listing.status == status
 
         where:
         status << Listing.statuses

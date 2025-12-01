@@ -13,8 +13,8 @@ class UrlMappings {
         // Existing API routes
         group("/api") {
             group("/locations") {
-                "/"(controller: 'apiLocation', action: 'search', method: 'GET')
-                "/"(controller: 'apiLocation', action: "create", method: 'POST')
+                "/"(controller: 'apiLocation', action: 'index', method: 'GET')
+                "/"(controller: 'apiLocation', action: "save", method: 'POST')
                 "/"(controller: 'apiLocation', action: "deleteLocations", method: 'DELETE')
                 "/"(controller: 'apiLocation', action: "editLocations", method: 'PUT')
                 "/$id"(controller: 'apiLocation', action: 'show', method: 'GET')

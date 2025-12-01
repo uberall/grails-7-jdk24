@@ -28,16 +28,16 @@ class ApiLocationControllerSpec extends Specification implements ControllerUnitT
         ]
 
         when: "Making a POST request to create a location"
-        controller.create()
+        controller.save()
 
         then: "The response is successful"
-        response.status == 201
+        response.status == 200
 
         and: "The response contains the created location with an ID"
-        response.json.id != null
-        response.json.name == "Test Location"
-        response.json.address == "123 Test Street, Test City"
-        response.json.valid == true
+        response.json.response.location.id != null
+        response.json.response.location.name == "Test Location"
+        response.json.response.location.address == "123 Test Street, Test City"
+        response.json.response.location.valid == true
 
         and: "The location is persisted in the database"
         Location.count() == 1
@@ -57,10 +57,10 @@ class ApiLocationControllerSpec extends Specification implements ControllerUnitT
         ]
 
         when: "Making a POST request with invalid data"
-        controller.create()
+        controller.save()
 
         then: "The response indicates validation error"
-        response.status == 422
+        response.status == 400
 
         and: "No location is created in the database"
         Location.count() == 0
@@ -76,10 +76,10 @@ class ApiLocationControllerSpec extends Specification implements ControllerUnitT
         ]
 
         when: "Making a POST request with blank name"
-        controller.create()
+        controller.save()
 
         then: "The response indicates validation error"
-        response.status == 422
+        response.status == 400
 
         and: "No location is created in the database"
         Location.count() == 0
@@ -95,10 +95,10 @@ class ApiLocationControllerSpec extends Specification implements ControllerUnitT
         ]
 
         when: "Making a POST request with blank address"
-        controller.create()
+        controller.save()
 
         then: "The response indicates validation error"
-        response.status == 422
+        response.status == 400
 
         and: "No location is created in the database"
         Location.count() == 0
@@ -114,10 +114,10 @@ class ApiLocationControllerSpec extends Specification implements ControllerUnitT
         ]
 
         when: "Making a POST request with address too long"
-        controller.create()
+        controller.save()
 
         then: "The response indicates validation error"
-        response.status == 422
+        response.status == 400
 
         and: "No location is created in the database"
         Location.count() == 0
@@ -131,8 +131,8 @@ class ApiLocationControllerSpec extends Specification implements ControllerUnitT
         response.status == 200
 
         and: "The response contains an empty array"
-        response.json instanceof List
-        response.json.size() == 0
+        response.json.response.locations instanceof List
+        response.json.response.locations.size() == 0
     }
 
     void "GET /api/locations returns list of locations as JSON"() {
@@ -149,8 +149,8 @@ class ApiLocationControllerSpec extends Specification implements ControllerUnitT
         response.status == 200
 
         and: "The response contains the locations as JSON array"
-        response.json instanceof List
-        response.json.size() == 2
+        response.json.response.locations instanceof List
+        response.json.response.locations.size() == 2
     }
 
     void "GET /api/locations/{id} with non-existent ID returns 404"() {
@@ -197,7 +197,7 @@ class ApiLocationControllerSpec extends Specification implements ControllerUnitT
         controller.update()
 
         then: "The response indicates validation failure"
-        response.status == 422
+        response.status == 400
 
         and: "The location is not updated in the database"
         def unchangedLocation = Location.read(location.id)
@@ -229,10 +229,10 @@ class ApiLocationControllerSpec extends Specification implements ControllerUnitT
         controller.delete()
 
         then: "The response is successful or handles cascade appropriately"
-        response.status == 204 || response.status == 409 // 409 if cascade is prevented
+        response.status == 200 || response.status == 400 // 400 if cascade is prevented
 
         and: "The location handling is appropriate"
-        if (response.status == 204) {
+        if (response.status == 200) {
             // If deletion succeeded, location should be gone
             Location.get(location.id) == null
         } else {
@@ -254,10 +254,10 @@ class ApiLocationControllerSpec extends Specification implements ControllerUnitT
         response.status == 200
 
         and: "The response contains the location data"
-        response.json.id == location.id
-        response.json.name == "Specific Location"
-        response.json.address == "Specific Address"
-        response.json.valid == true
+        response.json.response.location.id == location.id
+        response.json.response.location.name == "Specific Location"
+        response.json.response.location.address == "Specific Address"
+        response.json.response.location.valid == true
     }
 
     void "PUT /api/locations/{id} updates existing location"() {
@@ -285,6 +285,11 @@ class ApiLocationControllerSpec extends Specification implements ControllerUnitT
         updatedLocation.name == "New Name"
         updatedLocation.address == "New Address"
         updatedLocation.valid == true
+
+        and: "The response contains the updated location"
+        response.json.response.location.name == "New Name"
+        response.json.response.location.address == "New Address"
+        response.json.response.location.valid == true
     }
 
     void "DELETE /api/locations/{id} deletes existing location"() {
@@ -298,7 +303,7 @@ class ApiLocationControllerSpec extends Specification implements ControllerUnitT
         controller.delete()
 
         then: "The response is successful"
-        response.status == 204
+        response.status == 200
 
         and: "The location is removed from the database"
         Location.get(locationId) == null

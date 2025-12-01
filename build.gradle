@@ -131,9 +131,9 @@ dependencies {
     implementation("org.grails:grails-async-gpars:5.0.2") {
         exclude group: 'org.codehaus.groovy', module: 'groovy'
     }
-    implementation "org.grails.plugins:grails-mail:5.0.2"
+    implementation "org.grails.plugins:grails-mail:5.0.3"
     implementation "org.grails.plugins:sentry:11.7.25"
-    implementation "org.apache.grails:grails-redis:5.0.0-RC2"
+    implementation "org.apache.grails:grails-redis:5.0.0"
     //implementation 'org.grails.plugins:csv:1.0.1'
     //implementation 'org.grails.plugins:oauth:4.0.0'
 

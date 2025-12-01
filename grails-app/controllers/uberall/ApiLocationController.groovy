@@ -1,47 +1,34 @@
 package uberall
 
-import grails.rest.RestfulController
 import grails.gorm.transactions.Transactional
+import uberall.api.AbstractApiController
+import uberall.api.util.ResponseUtil
 
 @Transactional(readOnly = true)
-class ApiLocationController extends RestfulController<Location> {
+class ApiLocationController extends AbstractApiController {
     static responseFormats = ['json']
     static allowedFields = ['name', 'address', 'valid']
 
-    ApiLocationController() {
-        super(Location)
-    }
-
-    @Override
-    protected Location queryForResource(Serializable id) {
-        if (id == null) {
-            return null
-        }
-        // Use direct lookup by primary key to avoid variable shadowing issues
-        Location.get(id as Long)
-    }
-
-    @Override
-    protected List<Location> listAllResources(Map params) {
-        Location.list(params)
-    }
-
     // GET /api/locations/
     def index() {
-        respond listAllResources(params)
+        def locations = Location.list()
+        renderJson(ResponseUtil.getSuccess([locations: locations]))
     }
 
     // POST /api/locations/
     @Transactional
-    def create() {
-        def instance = createResource()
+    def save() {
+        def jsonData = request.JSON
+        def instance = new Location()
+
+        bindData(instance, jsonData, [include: allowedFields])
         instance.validate()
         if (instance.hasErrors()) {
-            respond instance.errors, status: 422
+            renderErrors(instance)
             return
         }
         instance.save flush:true
-        respond instance, [status: 201]
+        renderJson(ResponseUtil.getSuccess([location: instance]))
     }
 
     // DELETE /api/locations/
@@ -49,34 +36,42 @@ class ApiLocationController extends RestfulController<Location> {
     def deleteLocations() {
         // Bulk delete operation
         def deletedCount = Location.executeUpdate("delete from Location")
-        render status: 200, text: "Deleted ${deletedCount} locations"
+        renderJson(ResponseUtil.getSuccess([deletedCount: deletedCount]))
     }
 
     // PUT /api/locations/
     @Transactional
     def editLocations() {
         // Bulk edit operation - implementation depends on requirements
-        respond([message: 'Bulk edit not implemented'], status: 501)
+        renderJson(ResponseUtil.getError('Bulk edit not implemented'))
     }
 
     // GET /api/locations/{id}
-    @Override
     def show() {
-        def instance = queryForResource(params.id)
-        if (!instance) {
-            render status: 404
+        if (!params.id) {
+            renderJson(ResponseUtil.getMissingParameter('id'))
             return
         }
-        respond instance
+
+        def instance = Location.get(params.id as Long)
+        if (!instance) {
+            renderJson(ResponseUtil.getNotFound('Location not found'))
+            return
+        }
+        renderJson(ResponseUtil.getSuccess([location: instance]))
     }
 
     // PUT /api/locations/{id}
     @Transactional
-    @Override
     def update() {
-        def instance = queryForResource(params.id)
+        if (!params.id) {
+            renderJson(ResponseUtil.getMissingParameter('id'))
+            return
+        }
+
+        def instance = Location.get(params.id as Long)
         if (!instance) {
-            render status: 404
+            renderJson(ResponseUtil.getNotFound('Location not found'))
             return
         }
 
@@ -86,36 +81,31 @@ class ApiLocationController extends RestfulController<Location> {
         instance.validate()
         if (instance.hasErrors()) {
             instance.discard()
-            respond instance.errors, status: 422
+            renderErrors(instance)
             return
         }
         instance.save flush:true
-        respond instance, status: 200
+        renderJson(ResponseUtil.getSuccess([location: instance]))
     }
 
     // DELETE /api/locations/{id}
     @Transactional
-    @Override
     def delete() {
-        def instance = queryForResource(params.id)
+        if (!params.id) {
+            renderJson(ResponseUtil.getMissingParameter('id'))
+            return
+        }
+
+        def instance = Location.get(params.id as Long)
         if (!instance) {
-            render status: 404
+            renderJson(ResponseUtil.getNotFound('Location not found'))
             return
         }
         try {
             instance.delete flush:true
-            render status: 204
+            renderJson(ResponseUtil.getSuccess([deleted: true]))
         } catch (Exception e) {
-            respond([error: 'Cannot delete location with associated listings'], status: 409)
+            renderJson(ResponseUtil.getError('Cannot delete location with associated listings'))
         }
-    }
-
-    @Override
-    protected Location createResource() {
-        Location instance = resource.newInstance()
-        def jsonData = request.JSON
-
-        bindData(instance, jsonData, [include: allowedFields])
-        instance
     }
 }
